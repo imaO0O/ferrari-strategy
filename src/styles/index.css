@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@theme {
+  --color-rosso: #ff2800;
+  --color-rosso-deep: #9e1200;
+  --color-giallo: #fff200;
+  --color-carbon: #0a0a0c;
+  --color-panel: #141418;
+  --color-panel2: #1b1b21;
+  --color-line: #26262c;
+  --color-dim: #8a8a93;
+
+  --font-display: "Titillium Web", sans-serif;
+  --font-digits: "Orbitron", sans-serif;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  @apply bg-carbon text-neutral-50 font-display antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-rosso);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-carbon);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-rosso);
+}
+
+/* Subtle carbon-weave dot texture */
+.carbon-bg {
+  background-color: var(--color-carbon);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgb(255 255 255 / 0.035) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+}
+
+/* Checkered-flag strip */
+.checker {
+  background-image: conic-gradient(
+    #e8e8e8 90deg,
+    #0a0a0c 90deg 180deg,
+    #e8e8e8 180deg 270deg,
+    #0a0a0c 270deg
+  );
+  background-size: 14px 14px;
+}
+
+/* Hollow display type */
+.text-outline {
+  -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.16);
+  color: transparent;
+}
+.text-outline-rosso {
+  -webkit-text-stroke: 1.5px rgb(255 40 0 / 0.45);
+  color: transparent;
+}
+
+.glow-rosso {
+  box-shadow: 0 0 60px -18px rgb(255 40 0 / 0.55);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: inline-flex;
+  animation: marquee var(--marquee-speed, 28s) linear infinite;
+  will-change: transform;
+}
+
+@keyframes pulse-light {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Slow zoom for hero imagery */
+@keyframes ken-burns {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.ken-burns {
+  animation: ken-burns 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+img {
+  user-select: none;
+}
