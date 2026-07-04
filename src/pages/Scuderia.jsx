@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import PageWrap from "../components/PageWrap";
@@ -16,6 +16,27 @@ import { commonsFile, DRIVER_PHOTOS } from "../lib/images";
 import { gpRu, countryRu, driverRu, formatDateRu } from "../lib/i18n";
 
 const FERRARI_ID = "ferrari";
+
+const Hero3D = lazy(() => import("../components/three/Hero3D"));
+
+const hasWebGL = (() => {
+  try {
+    const c = document.createElement("canvas");
+    return Boolean(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch {
+    return false;
+  }
+})();
+
+function HeroPhoto() {
+  return (
+    <img
+      src={commonsFile("SF-24 at the Japanese GP.jpg", 1800)}
+      alt="Болид Ferrari Формулы-1 на трассе"
+      className="ken-burns h-full w-full object-cover"
+    />
+  );
+}
 
 function deriveSeason({ cs, ds, sched, fr, allWins }) {
   const csList = cs.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? [];
@@ -234,14 +255,35 @@ export default function Scuderia() {
       {/* ГЛАВНЫЙ ЭКРАН */}
       <section ref={heroRef} className="relative flex h-[92vh] min-h-[560px] items-end overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroY }}>
-          <img
-            src={commonsFile("SF-24 at the Japanese GP.jpg", 1800)}
-            alt="Болид Ferrari Формулы-1 на трассе"
-            className="ken-burns h-full w-full object-cover"
-          />
+          {hasWebGL ? (
+            <>
+              {/* красное свечение и гигантская надпись за болидом */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(60% 50% at 62% 42%, rgb(255 40 0 / 0.16), transparent 70%)",
+                }}
+              />
+              <p className="absolute left-1/2 top-[36%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[15vw] font-black italic leading-none text-outline opacity-60">
+                FERRARI
+              </p>
+              <Suspense fallback={<HeroPhoto />}>
+                <Hero3D />
+              </Suspense>
+            </>
+          ) : (
+            <HeroPhoto />
+          )}
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-carbon via-carbon/40 to-carbon/20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-carbon/70 to-transparent" />
+        {hasWebGL ? (
+          <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-carbon to-transparent" />
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-carbon via-carbon/40 to-carbon/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-carbon/70 to-transparent" />
+          </>
+        )}
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16">
           <Reveal>

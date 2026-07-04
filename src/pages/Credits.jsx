@@ -79,6 +79,12 @@ export default function Credits() {
             </a>{" "}
             (Exo 2, Orbitron).
           </p>
+          <p>
+            <span className="text-white">3D.</span> Болид на главном экране — процедурная
+            стилизованная модель, собранная из примитивов Three.js (React Three Fiber)
+            специально для этого проекта. Сторонние 3D-ассеты не используются; модель не
+            воспроизводит реальную ливрею или конструкцию какой-либо команды.
+          </p>
         </Reveal>
 
         <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
