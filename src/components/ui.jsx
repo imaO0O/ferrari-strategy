@@ -36,24 +36,36 @@ export function ImageReveal({ src, alt, className = "", imgClassName = "" }) {
   );
 }
 
-/* Big display word with letters rising in one by one */
+/* Big display word with letters rising in one by one.
+   The in-view trigger must live on the (unclipped) parent: the letters start
+   translated below the overflow-hidden box, so their own visible area is 0
+   and IntersectionObserver never fires for them. */
 export function KineticTitle({ text, className = "", delay = 0 }) {
   return (
-    <span className={`inline-flex overflow-hidden ${className}`} aria-label={text}>
+    <motion.span
+      className={`inline-flex overflow-hidden ${className}`}
+      aria-label={text}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true }}
+      variants={{
+        show: { transition: { staggerChildren: 0.045, delayChildren: delay } },
+      }}
+    >
       {[...text].map((ch, i) => (
         <motion.span
           key={i}
           aria-hidden
           className="inline-block"
-          initial={{ y: "112%" }}
-          whileInView={{ y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: delay + i * 0.045, ease: EASE }}
+          variants={{
+            hidden: { y: "112%" },
+            show: { y: 0, transition: { duration: 0.8, ease: EASE } },
+          }}
         >
           {ch === " " ? " " : ch}
         </motion.span>
       ))}
-    </span>
+    </motion.span>
   );
 }
 
