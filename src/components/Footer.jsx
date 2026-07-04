@@ -7,27 +7,27 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-3">
         <div>
           <p className="text-2xl font-black uppercase italic tracking-tight">
-            <span className="text-rosso">Rosso</span> Corsa
+            <span className="text-rosso">Ferrari</span> Strategy
           </p>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-dim">
-            An unofficial, non-commercial fan project made with passion for
-            Formula&nbsp;1 and the Scuderia. Not affiliated with, endorsed or
-            sponsored by Ferrari&nbsp;S.p.A. or Formula&nbsp;One&nbsp;Group.
+            Неофициальный некоммерческий фан-проект, сделанный из любви к
+            Формуле-1 и Скудерии. Не связан с Ferrari&nbsp;S.p.A. и
+            Formula&nbsp;One&nbsp;Group и не одобрен ими.
           </p>
         </div>
         <div>
-          <p className="mb-3 font-digits text-[10px] tracking-[0.35em] text-rosso">SECTIONS</p>
+          <p className="mb-3 font-digits text-[10px] tracking-[0.35em] text-rosso">РАЗДЕЛЫ</p>
           <ul className="space-y-2 text-sm font-bold uppercase tracking-wider">
-            <li><Link className="transition-colors hover:text-rosso" to="/">Scuderia</Link></li>
-            <li><Link className="transition-colors hover:text-rosso" to="/heritage">Heritage</Link></li>
-            <li><Link className="transition-colors hover:text-rosso" to="/credits">Credits &amp; sources</Link></li>
-            <li className="text-dim/50">Dashboard · Racing · Game — soon</li>
+            <li><Link className="transition-colors hover:text-rosso" to="/">Скудерия</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/heritage">История</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/credits">Источники</Link></li>
+            <li className="text-dim/50">Дашборд · Гонки · Игра — скоро</li>
           </ul>
         </div>
         <div>
-          <p className="mb-3 font-digits text-[10px] tracking-[0.35em] text-rosso">SOURCES</p>
+          <p className="mb-3 font-digits text-[10px] tracking-[0.35em] text-rosso">ИСТОЧНИКИ</p>
           <p className="text-sm leading-relaxed text-dim">
-            Photographs are hotlinked from{" "}
+            Фотографии встроены с{" "}
             <a
               className="text-white underline decoration-rosso underline-offset-4"
               href="https://commons.wikimedia.org"
@@ -36,9 +36,12 @@ export default function Footer() {
             >
               Wikimedia Commons
             </a>{" "}
-            under their respective free licenses — every image, author and
-            license is listed on the <Link to="/credits" className="text-white underline decoration-rosso underline-offset-4">Credits</Link> page.
-            Live data by the{" "}
+            и распространяются под их свободными лицензиями — каждый снимок,
+            автор и лицензия перечислены на странице{" "}
+            <Link to="/credits" className="text-white underline decoration-rosso underline-offset-4">
+              Источники
+            </Link>
+            . Живые данные —{" "}
             <a
               className="text-white underline decoration-rosso underline-offset-4"
               href="https://jolpi.ca"
@@ -51,8 +54,8 @@ export default function Footer() {
           </p>
         </div>
       </div>
-      <div className="border-t border-line/60 py-4 text-center font-digits text-[10px] tracking-[0.3em] text-dim/60">
-        FORZA FERRARI · EST. 2026 · MADE BY A FAN, FOR FANS
+      <div className="border-t border-line/60 py-4 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-dim/60">
+        Forza Ferrari · 2026 · Сделано фанатом для фанатов
       </div>
     </footer>
   );

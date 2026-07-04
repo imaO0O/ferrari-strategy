@@ -10,8 +10,8 @@
   --color-line: #26262c;
   --color-dim: #8a8a93;
 
-  --font-display: "Titillium Web", sans-serif;
-  --font-digits: "Orbitron", sans-serif;
+  --font-display: "Exo 2", sans-serif;
+  --font-digits: "Orbitron", "Exo 2", sans-serif;
 }
 
 html {
@@ -117,4 +117,24 @@ body {
 
 img {
   user-select: none;
+}
+
+/* Film-grain overlay */
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* Native cursor is replaced by the custom one on precise pointers */
+.custom-cursor,
+.custom-cursor a,
+.custom-cursor button {
+  cursor: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .ken-burns {
+    animation: none;
+  }
 }

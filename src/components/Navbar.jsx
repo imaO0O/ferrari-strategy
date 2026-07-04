@@ -2,20 +2,42 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Marquee, EASE } from "./ui";
+import Magnetic from "./Magnetic";
 
 const LINKS = [
-  { to: "/", label: "Scuderia" },
-  { to: "/heritage", label: "Heritage" },
-  { to: "/credits", label: "Credits" },
+  { to: "/", label: "Скудерия" },
+  { to: "/heritage", label: "История" },
+  { to: "/credits", label: "Источники" },
 ];
 
-const SOON = ["Dashboard", "Racing", "Game"];
+const SOON = ["Дашборд", "Гонки", "Игра"];
 
 function Wordmark() {
   return (
     <NavLink to="/" className="text-xl font-black uppercase italic tracking-tight">
-      <span className="text-rosso">Rosso</span> Corsa
+      <span className="text-rosso">Ferrari</span> Strategy
     </NavLink>
+  );
+}
+
+/* Ссылка с «прокруткой» текста вверх при наведении */
+function RollingLabel({ label, active }) {
+  return (
+    <span className="relative block h-[1.25em] overflow-hidden">
+      <span
+        className={`block transition-transform duration-300 ease-out group-hover:-translate-y-full ${
+          active ? "text-white" : "text-dim"
+        }`}
+      >
+        {label}
+      </span>
+      <span
+        aria-hidden
+        className="absolute inset-0 block translate-y-full text-rosso transition-transform duration-300 ease-out group-hover:translate-y-0"
+      >
+        {label}
+      </span>
+    </span>
   );
 }
 
@@ -26,19 +48,17 @@ export default function Navbar() {
     <>
       <header className="fixed inset-x-0 top-0 z-50 border-b border-line/60 bg-carbon/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
-          <Wordmark />
+          <Magnetic strength={0.2}>
+            <Wordmark />
+          </Magnetic>
 
           <nav className="hidden items-center gap-8 md:flex">
             {LINKS.map(({ to, label }) => (
               <NavLink key={to} to={to} end={to === "/"} className="group relative py-2">
                 {({ isActive }) => (
                   <>
-                    <span
-                      className={`text-sm font-bold uppercase tracking-[0.18em] transition-colors ${
-                        isActive ? "text-white" : "text-dim group-hover:text-white"
-                      }`}
-                    >
-                      {label}
+                    <span className="text-sm font-bold uppercase tracking-[0.18em]">
+                      <RollingLabel label={label} active={isActive} />
                     </span>
                     <span
                       className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-left bg-rosso transition-transform duration-300 ${
@@ -56,7 +76,7 @@ export default function Navbar() {
               >
                 {label}
                 <span className="rounded-sm bg-panel2 px-1 py-0.5 font-digits text-[8px] tracking-widest text-giallo/70">
-                  SOON
+                  СКОРО
                 </span>
               </span>
             ))}
@@ -65,7 +85,7 @@ export default function Navbar() {
           <button
             className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 md:hidden"
             onClick={() => setOpen(true)}
-            aria-label="Open menu"
+            aria-label="Открыть меню"
           >
             <span className="h-0.5 w-6 bg-white" />
             <span className="h-0.5 w-6 bg-rosso" />
@@ -73,7 +93,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Full-screen mobile menu */}
+      {/* Полноэкранное мобильное меню */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -89,7 +109,7 @@ export default function Navbar() {
                 className="text-sm font-black uppercase tracking-[0.2em]"
                 onClick={() => setOpen(false)}
               >
-                Close ✕
+                Закрыть ✕
               </button>
             </div>
             <nav className="flex flex-1 flex-col justify-center gap-2 px-8">
@@ -116,7 +136,7 @@ export default function Navbar() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                DASHBOARD · RACING · GAME — COMING SOON
+                ДАШБОРД · ГОНКИ · ИГРА — СКОРО
               </motion.p>
             </nav>
             <Marquee

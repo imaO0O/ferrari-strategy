@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import Lenis from "lenis";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import StartLights from "./components/StartLights";
+import CustomCursor from "./components/CustomCursor";
+import ScrollProgress from "./components/ScrollProgress";
 import Scuderia from "./pages/Scuderia";
 import Heritage from "./pages/Heritage";
 import Credits from "./pages/Credits";
@@ -27,13 +29,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // jump to top under the transition panels, before the new page reveals
+    // прыжок наверх под панелями перехода, до появления новой страницы
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <StartLights />
+      <CustomCursor />
+      <ScrollProgress />
+      {/* лёгкое «киношное» зерно поверх всего */}
+      <div className="grain pointer-events-none fixed inset-0 z-[85] opacity-[0.05]" />
       <Navbar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -44,6 +50,6 @@ export default function App() {
         </Routes>
       </AnimatePresence>
       <Footer />
-    </>
+    </MotionConfig>
   );
 }

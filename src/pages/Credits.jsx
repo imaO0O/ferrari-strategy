@@ -6,8 +6,8 @@ import { IMAGES, commonsFile, commonsPage } from "../lib/images";
 const stripHtml = (html) =>
   new DOMParser().parseFromString(html ?? "", "text/html").body.textContent?.trim() ?? "";
 
-/* Fetch author + license for every image straight from the Commons API,
-   so attribution always matches the source file. */
+/* Автор и лицензия каждого снимка загружаются напрямую из API Commons,
+   чтобы атрибуция всегда совпадала с первоисточником. */
 function useCommonsMeta() {
   const [meta, setMeta] = useState(null);
   useEffect(() => {
@@ -26,8 +26,8 @@ function useCommonsMeta() {
           const ii = page.imageinfo?.[0];
           if (!ii) continue;
           byTitle[page.title.replace(/^File:/, "")] = {
-            author: stripHtml(ii.extmetadata?.Artist?.value) || "Unknown author",
-            license: ii.extmetadata?.LicenseShortName?.value ?? "See file page",
+            author: stripHtml(ii.extmetadata?.Artist?.value) || "Автор не указан",
+            license: ii.extmetadata?.LicenseShortName?.value ?? "См. страницу файла",
             page: ii.descriptionurl,
             thumb: ii.thumburl,
           };
@@ -48,36 +48,36 @@ export default function Credits() {
   return (
     <PageWrap>
       <section className="mx-auto max-w-7xl px-5 pb-20 pt-32 md:pt-40">
-        <SectionTitle kicker="TRASPARENZA" title="Credits & sources" className="mb-10" />
+        <SectionTitle kicker="TRASPARENZA" title="Источники" className="mb-10" />
 
         <Reveal className="max-w-3xl space-y-4 leading-relaxed text-neutral-200">
           <p>
-            <strong className="text-white">Rosso Corsa</strong> is an unofficial,{" "}
-            <strong className="text-white">non-commercial fan project</strong> built for learning
-            and for the love of racing. It is not affiliated with, endorsed or sponsored by
-            Ferrari S.p.A., Formula One Group, the FIA or any Formula 1 team. “Ferrari”,
-            “Formula 1” and related marks are trademarks of their respective owners.
+            <strong className="text-white">Ferrari Strategy</strong> — неофициальный{" "}
+            <strong className="text-white">некоммерческий фан-проект</strong>, созданный ради
+            обучения и из любви к гонкам. Он не связан с Ferrari S.p.A., Formula One Group,
+            FIA или какой-либо командой Формулы-1 и не одобрен ими. «Ferrari», «Formula 1» и
+            связанные знаки — товарные знаки их правообладателей.
           </p>
           <p>
-            <span className="text-white">Photography.</span> All photographs are embedded from{" "}
+            <span className="text-white">Фотографии.</span> Все снимки встроены с{" "}
             <a className="underline decoration-rosso underline-offset-4" href="https://commons.wikimedia.org" target="_blank" rel="noreferrer">
               Wikimedia Commons
             </a>{" "}
-            and remain under their original free licenses (CC&nbsp;BY, CC&nbsp;BY-SA, public
-            domain and similar). Authors and licenses below are loaded live from the Commons API.
-            No image is claimed as this project&apos;s own work.
+            и остаются под своими свободными лицензиями (CC&nbsp;BY, CC&nbsp;BY-SA,
+            общественное достояние и другие). Авторы и лицензии ниже загружаются напрямую из
+            API Commons. Ни один снимок не выдаётся за собственную работу проекта.
           </p>
           <p>
-            <span className="text-white">Data.</span> Championship standings, results and the
-            race calendar come from the free{" "}
+            <span className="text-white">Данные.</span> Положение в чемпионате, результаты и
+            календарь гонок предоставляет бесплатный{" "}
             <a className="underline decoration-rosso underline-offset-4" href="https://jolpi.ca" target="_blank" rel="noreferrer">
               Jolpica F1 API
             </a>{" "}
-            (successor of the Ergast API). Fonts by{" "}
+            (преемник Ergast). Шрифты —{" "}
             <a className="underline decoration-rosso underline-offset-4" href="https://fonts.google.com" target="_blank" rel="noreferrer">
               Google Fonts
             </a>{" "}
-            (Titillium Web, Orbitron).
+            (Exo 2, Orbitron).
           </p>
         </Reveal>
 
@@ -101,10 +101,10 @@ export default function Credits() {
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-bold">{img.label}</span>
                     <span className="mt-1 block truncate text-xs text-dim">
-                      {meta == null ? "Loading author…" : m?.author ?? "See file page"}
+                      {meta == null ? "Загружаем автора…" : m?.author ?? "См. страницу файла"}
                     </span>
                     <span className="mt-1 inline-block rounded-sm bg-panel2 px-1.5 py-0.5 font-digits text-[9px] tracking-wider text-giallo">
-                      {meta == null ? "…" : m?.license ?? "LICENSE ON COMMONS"}
+                      {meta == null ? "…" : m?.license ?? "ЛИЦЕНЗИЯ НА COMMONS"}
                     </span>
                   </span>
                 </a>
@@ -114,9 +114,9 @@ export default function Credits() {
         </div>
 
         <p className="mt-10 text-sm text-dim">
-          Are you an author of one of these photographs and want it credited differently or
-          removed? Open the file page on Commons for canonical attribution — this page mirrors it
-          automatically.
+          Вы автор одной из фотографий и хотите изменить атрибуцию или убрать снимок?
+          Каноническая атрибуция — на странице файла на Commons; эта страница зеркалит её
+          автоматически.
         </p>
       </section>
     </PageWrap>

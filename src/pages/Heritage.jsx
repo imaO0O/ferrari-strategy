@@ -14,7 +14,7 @@ function DecadeDivider({ decade }) {
     <div ref={ref} className="overflow-hidden py-10 md:py-16">
       <motion.p
         style={{ x }}
-        className="whitespace-nowrap text-center font-digits text-[22vw] font-black leading-none text-outline md:text-[11rem]"
+        className="whitespace-nowrap text-center text-[22vw] font-black italic leading-none text-outline md:text-[11rem]"
       >
         {decade}
       </motion.p>
@@ -80,18 +80,18 @@ export default function Heritage() {
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16">
           <Reveal>
-            <p className="mb-3 flex items-center gap-3 font-digits text-[10px] tracking-[0.4em] text-giallo">
+            <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
               <span className="inline-block h-px w-10 bg-giallo" />
-              SINCE 1947 · LA STORIA DELLA SCUDERIA
+              С 1947 ГОДА · LA STORIA DELLA SCUDERIA
             </p>
           </Reveal>
-          <h1 className="text-[17vw] font-black uppercase italic leading-[0.82] tracking-tight md:text-[10rem]">
-            <KineticTitle text="HERITAGE" />
+          <h1 className="text-[15vw] font-black uppercase italic leading-[0.82] tracking-tight md:text-[10rem]">
+            <KineticTitle text="ИСТОРИЯ" />
           </h1>
           <Reveal delay={0.5}>
             <p className="mt-6 max-w-xl text-lg text-neutral-200">
-              Nearly eight decades of victories, heartbreak and passion — the story of the
-              most famous name in motorsport, told in {TIMELINE.length} moments.
+              Почти восемь десятилетий побед, драм и страсти — история самого знаменитого
+              имени в автоспорте в {TIMELINE.length} моментах.
             </p>
           </Reveal>
         </div>
@@ -124,15 +124,15 @@ export default function Heritage() {
         </div>
       </section>
 
-      {/* OUTRO */}
+      {/* ФИНАЛ */}
       <section className="border-t border-line">
         <Link to="/" className="group block overflow-hidden py-20 text-center md:py-28">
           <Reveal>
-            <p className="font-digits text-[10px] tracking-[0.4em] text-dim">
-              THE STORY CONTINUES EVERY RACE WEEKEND
+            <p className="text-[10px] font-bold tracking-[0.4em] text-dim">
+              ИСТОРИЯ ПРОДОЛЖАЕТСЯ КАЖДЫЙ ГОНОЧНЫЙ УИК-ЭНД
             </p>
             <p className="mt-4 text-5xl font-black uppercase italic tracking-tight text-outline transition-all duration-500 group-hover:text-rosso group-hover:[-webkit-text-stroke:0px] md:text-8xl">
-              Back to the Scuderia →
+              В Скудерию →
             </p>
           </Reveal>
         </Link>

@@ -53,10 +53,10 @@ export default function StartLights() {
             </div>
           </div>
           <p className="mt-8 text-2xl font-black uppercase italic tracking-tight md:text-3xl">
-            <span className="text-rosso">Rosso</span> Corsa
+            <span className="text-rosso">Ferrari</span> Strategy
           </p>
           <p className="mt-1 font-digits text-[10px] tracking-[0.4em] text-dim">
-            IT&apos;S LIGHTS OUT…
+            ГАСНУТ ОГНИ…
           </p>
         </motion.div>
       )}

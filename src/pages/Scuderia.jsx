@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import PageWrap from "../components/PageWrap";
+import Magnetic from "../components/Magnetic";
 import {
   Reveal,
   ImageReveal,
@@ -12,6 +13,7 @@ import {
 } from "../components/ui";
 import { api, daysSinceLastTitle } from "../lib/api";
 import { commonsFile, DRIVER_PHOTOS } from "../lib/images";
+import { gpRu, countryRu, driverRu, formatDateRu } from "../lib/i18n";
 
 const FERRARI_ID = "ferrari";
 
@@ -25,10 +27,10 @@ function deriveSeason({ cs, ds, sched, fr, allWins }) {
     if (team.position === "1") {
       const runnerUp = csList[1];
       gapLabel = runnerUp
-        ? `+${(+team.points - +runnerUp.points).toFixed(0)} PTS LEAD`
-        : "LEADING";
+        ? `+${(+team.points - +runnerUp.points).toFixed(0)} ОЧК. ОТРЫВА`
+        : "ЛИДЕР";
     } else {
-      gapLabel = `−${(+leader.points - +team.points).toFixed(0)} PTS TO P1`;
+      gapLabel = `−${(+leader.points - +team.points).toFixed(0)} ОЧК. ДО P1`;
     }
   }
 
@@ -74,10 +76,10 @@ function Countdown({ target }) {
   }, []);
   const diff = Math.max(0, target - now);
   const cells = [
-    [Math.floor(diff / 86_400_000), "DAYS"],
-    [Math.floor(diff / 3_600_000) % 24, "HRS"],
-    [Math.floor(diff / 60_000) % 60, "MIN"],
-    [Math.floor(diff / 1_000) % 60, "SEC"],
+    [Math.floor(diff / 86_400_000), "ДНИ"],
+    [Math.floor(diff / 3_600_000) % 24, "ЧАС"],
+    [Math.floor(diff / 60_000) % 60, "МИН"],
+    [Math.floor(diff / 1_000) % 60, "СЕК"],
   ];
   return (
     <div className="flex items-start gap-3 md:gap-5">
@@ -88,7 +90,7 @@ function Countdown({ target }) {
             <span className="font-digits text-4xl font-bold tabular-nums md:text-6xl">
               {String(v).padStart(2, "0")}
             </span>
-            <p className="mt-1 font-digits text-[9px] tracking-[0.35em] text-dim">{label}</p>
+            <p className="mt-1 text-[9px] font-bold tracking-[0.35em] text-dim">{label}</p>
           </div>
         </div>
       ))}
@@ -101,7 +103,7 @@ function FormBars({ results }) {
   if (!last5.length) return null;
   return (
     <div>
-      <p className="mb-2 font-digits text-[9px] tracking-[0.35em] text-dim">LAST 5 RACES</p>
+      <p className="mb-2 text-[9px] font-bold tracking-[0.35em] text-dim">ПОСЛЕДНИЕ 5 ГОНОК</p>
       <div className="flex items-end gap-2">
         {last5.map(({ round, position }) => (
           <div key={round} className="flex flex-col items-center gap-1">
@@ -122,6 +124,7 @@ function FormBars({ results }) {
 
 function DriverCard({ standing, results, index }) {
   const d = standing.Driver;
+  const name = driverRu(d);
   const photo = DRIVER_PHOTOS[d.driverId];
   const wins = (results ?? []).filter((r) => r.position === 1).length;
   const podiums = (results ?? []).filter((r) => r.position <= 3).length;
@@ -134,7 +137,7 @@ function DriverCard({ standing, results, index }) {
       {photo ? (
         <ImageReveal
           src={commonsFile(photo, 900)}
-          alt={`${d.givenName} ${d.familyName}`}
+          alt={`${name.given} ${name.family}`}
           className="h-80 md:h-[26rem]"
           imgClassName="object-top"
         />
@@ -145,23 +148,23 @@ function DriverCard({ standing, results, index }) {
       )}
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-panel to-transparent" />
       <div className="relative -mt-16 px-6 pb-6">
-        <p className="text-lg font-semibold text-dim">{d.givenName}</p>
+        <p className="text-lg font-semibold text-dim">{name.given}</p>
         <h3 className="text-4xl font-black uppercase italic leading-none tracking-tight md:text-5xl">
-          {d.familyName}
+          {name.family}
         </h3>
         <div className="mt-5 flex flex-wrap items-end justify-between gap-6">
           <div className="flex gap-8">
             <div>
               <span className="font-digits text-4xl font-bold text-rosso">{standing.points}</span>
-              <p className="mt-1 font-digits text-[9px] tracking-[0.35em] text-dim">POINTS · P{standing.position}</p>
+              <p className="mt-1 text-[9px] font-bold tracking-[0.35em] text-dim">ОЧКИ · P{standing.position}</p>
             </div>
             <div>
               <span className="font-digits text-4xl font-bold">{wins}</span>
-              <p className="mt-1 font-digits text-[9px] tracking-[0.35em] text-dim">WINS</p>
+              <p className="mt-1 text-[9px] font-bold tracking-[0.35em] text-dim">ПОБЕДЫ</p>
             </div>
             <div>
               <span className="font-digits text-4xl font-bold">{podiums}</span>
-              <p className="mt-1 font-digits text-[9px] tracking-[0.35em] text-dim">PODIUMS</p>
+              <p className="mt-1 text-[9px] font-bold tracking-[0.35em] text-dim">ПОДИУМЫ</p>
             </div>
           </div>
           <FormBars results={results} />
@@ -178,7 +181,7 @@ function StatBlock({ label, value, accent = false }) {
         value={value}
         className={`font-digits text-5xl font-bold md:text-6xl ${accent ? "text-giallo" : ""}`}
       />
-      <p className="mt-2 font-digits text-[9px] tracking-[0.35em] text-dim">{label}</p>
+      <p className="mt-2 text-[9px] font-bold tracking-[0.35em] text-dim">{label}</p>
     </div>
   );
 }
@@ -228,12 +231,12 @@ export default function Scuderia() {
 
   return (
     <PageWrap>
-      {/* HERO */}
+      {/* ГЛАВНЫЙ ЭКРАН */}
       <section ref={heroRef} className="relative flex h-[92vh] min-h-[560px] items-end overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroY }}>
           <img
             src={commonsFile("SF-24 at the Japanese GP.jpg", 1800)}
-            alt="Ferrari Formula 1 car on track"
+            alt="Болид Ferrari Формулы-1 на трассе"
             className="ken-burns h-full w-full object-cover"
           />
         </motion.div>
@@ -242,13 +245,13 @@ export default function Scuderia() {
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16">
           <Reveal>
-            <p className="mb-3 flex items-center gap-3 font-digits text-[10px] tracking-[0.4em] text-giallo">
+            <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
               <span className="inline-block h-px w-10 bg-giallo" />
-              UNOFFICIAL FAN HUB · MARANELLO
+              НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · МАРАНЕЛЛО
             </p>
           </Reveal>
-          <h1 className="text-[17vw] font-black uppercase italic leading-[0.82] tracking-tight md:text-[10rem]">
-            <KineticTitle text="SCUDERIA" />
+          <h1 className="text-[15vw] font-black uppercase italic leading-[0.82] tracking-tight md:text-[10rem]">
+            <KineticTitle text="СКУДЕРИЯ" />
           </h1>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             {state.status === "loading" && (
@@ -259,11 +262,11 @@ export default function Scuderia() {
                 <span className="rounded-md bg-rosso px-3 py-1.5 font-digits text-sm font-bold">
                   P{team.position}
                 </span>
-                <span className="rounded-md border border-line bg-carbon/70 px-3 py-1.5 font-digits text-sm backdrop-blur">
-                  {team.points} PTS · CONSTRUCTORS&apos; {seasonLabel}
+                <span className="rounded-md border border-line bg-carbon/70 px-3 py-1.5 text-sm font-bold backdrop-blur">
+                  {team.points} ОЧК. · КУБОК КОНСТРУКТОРОВ {seasonLabel}
                 </span>
                 {gapLabel && (
-                  <span className="rounded-md border border-line bg-carbon/70 px-3 py-1.5 font-digits text-sm text-giallo backdrop-blur">
+                  <span className="rounded-md border border-line bg-carbon/70 px-3 py-1.5 text-sm font-bold text-giallo backdrop-blur">
                     {gapLabel}
                   </span>
                 )}
@@ -282,20 +285,24 @@ export default function Scuderia() {
 
       {state.status === "error" && (
         <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-          <p className="text-xl font-bold">Live data is unavailable right now.</p>
-          <p className="mt-2 text-dim">The Jolpica F1 API did not respond — season stats will appear once it does.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-6 rounded-md bg-rosso px-6 py-3 font-digits text-sm font-bold uppercase tracking-widest transition-transform hover:scale-105"
-          >
-            Retry
-          </button>
+          <p className="text-xl font-bold">Живые данные сейчас недоступны.</p>
+          <p className="mt-2 text-dim">
+            Jolpica F1 API не ответил — статистика сезона появится, как только связь восстановится.
+          </p>
+          <Magnetic>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-6 rounded-md bg-rosso px-6 py-3 text-sm font-black uppercase tracking-widest transition-transform hover:scale-105"
+            >
+              Повторить
+            </button>
+          </Magnetic>
         </div>
       )}
 
-      {/* DRIVERS */}
+      {/* ПИЛОТЫ */}
       <section className="mx-auto max-w-7xl px-5 py-20 md:py-28">
-        <SectionTitle kicker="I PILOTI" title="The drivers" className="mb-12" />
+        <SectionTitle kicker="I PILOTI" title="Пилоты" className="mb-12" />
         <div className="grid gap-8 md:grid-cols-2">
           {state.status === "loading" &&
             [0, 1].map((i) => (
@@ -313,75 +320,69 @@ export default function Scuderia() {
         </div>
       </section>
 
-      {/* NUMBERS */}
+      {/* ЦИФРЫ СЕЗОНА */}
       <section className="carbon-bg border-y border-line">
         <div className="mx-auto max-w-7xl px-5 py-20">
-          <SectionTitle kicker="LA STAGIONE" title="Season in numbers" className="mb-12" />
+          <SectionTitle kicker="LA STAGIONE" title="Сезон в цифрах" className="mb-12" />
           <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
-            <StatBlock label="SEASON WINS" value={team ? +team.wins : null} />
-            <StatBlock label="SEASON PODIUMS" value={state.status === "ready" ? podiums : null} />
-            <StatBlock label="SEASON POINTS" value={team ? +team.points : null} />
-            <StatBlock label="ALL-TIME F1 WINS" value={allTimeWins} accent />
+            <StatBlock label="ПОБЕДЫ В СЕЗОНЕ" value={team ? +team.wins : null} />
+            <StatBlock label="ПОДИУМЫ В СЕЗОНЕ" value={state.status === "ready" ? podiums : null} />
+            <StatBlock label="ОЧКИ В СЕЗОНЕ" value={team ? +team.points : null} />
+            <StatBlock label="ПОБЕД ЗА ИСТОРИЮ F1" value={allTimeWins} accent />
           </div>
 
           <Reveal className="mt-20 rounded-xl border border-line bg-panel p-8 text-center md:p-14">
-            <p className="font-digits text-[10px] tracking-[0.4em] text-dim">
-              DAYS SINCE THE LAST CONSTRUCTORS&apos; TITLE
+            <p className="text-[10px] font-bold tracking-[0.4em] text-dim">
+              ДНЕЙ БЕЗ КУБКА КОНСТРУКТОРОВ
             </p>
             <Counter
               value={daysSinceLastTitle()}
               duration={2.4}
               className="mt-4 block font-digits text-7xl font-black text-giallo md:text-[9rem]"
             />
-            <p className="mt-4 text-dim">…and counting. Brazil 2008 was a long time ago. Forza.</p>
+            <p className="mt-4 text-dim">…и счёт всё ещё идёт. Бразилия-2008 была давно. Forza Ferrari.</p>
           </Reveal>
         </div>
       </section>
 
-      {/* NEXT RACE */}
+      {/* СЛЕДУЮЩАЯ ГОНКА */}
       {state.status !== "error" && (
         <section className="mx-auto max-w-7xl px-5 py-20 md:py-28">
-          <SectionTitle kicker="PROSSIMA GARA" title="Next race" className="mb-12" />
+          <SectionTitle kicker="PROSSIMA GARA" title="Следующая гонка" className="mb-12" />
           {state.status === "loading" && <div className="h-72 animate-pulse rounded-xl bg-panel" />}
           {state.status === "ready" && !nextRace && (
-            <p className="text-dim">The season is over — see you at winter testing. 🏁</p>
+            <p className="text-dim">Сезон завершён — увидимся на зимних тестах. 🏁</p>
           )}
           {state.status === "ready" && nextRace && (
             <div className="grid items-stretch gap-8 lg:grid-cols-2">
               <Reveal className="flex flex-col justify-between rounded-xl border border-line bg-panel p-8">
                 <div>
                   <span className="rounded-md bg-panel2 px-2.5 py-1 font-digits text-xs text-giallo">
-                    ROUND {nextRace.round}
+                    ЭТАП {nextRace.round}
                   </span>
                   <h3 className="mt-4 text-4xl font-black uppercase italic leading-none md:text-5xl">
-                    {nextRace.raceName}
+                    {gpRu(nextRace.raceName)}
                   </h3>
                   <p className="mt-3 text-dim">
                     {nextRace.Circuit.circuitName} — {nextRace.Circuit.Location.locality},{" "}
-                    {nextRace.Circuit.Location.country}
+                    {countryRu(nextRace.Circuit.Location.country)}
                   </p>
-                  <p className="mt-1 font-digits text-sm text-dim">
-                    {new Date(`${nextRace.date}T${nextRace.time ?? "12:00:00Z"}`).toLocaleString("en-GB", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                  <p className="mt-1 text-sm font-semibold text-dim">
+                    {formatDateRu(nextRace.date, nextRace.time)}
                   </p>
                 </div>
                 <div className="mt-10">
                   <Countdown target={new Date(`${nextRace.date}T${nextRace.time ?? "12:00:00Z"}`).getTime()} />
                   {winsAtNext != null && (
-                    <p className="mt-8 inline-block rounded-md border border-rosso/40 px-3 py-1.5 font-digits text-xs tracking-widest text-rosso">
-                      FERRARI WINS AT THIS GRAND PRIX: {winsAtNext}
+                    <p className="mt-8 inline-block rounded-md border border-rosso/40 px-3 py-1.5 text-xs font-bold tracking-widest text-rosso">
+                      ПОБЕД FERRARI НА ЭТОМ ГРАН-ПРИ: {winsAtNext}
                     </p>
                   )}
                 </div>
               </Reveal>
               <ImageReveal
                 src={commonsFile("Scuderia Ferrari Pit Stop2.JPG", 1200)}
-                alt="Scuderia Ferrari pit stop"
+                alt="Пит-стоп Scuderia Ferrari"
                 className="min-h-72 rounded-xl border border-line"
               />
             </div>
@@ -389,18 +390,18 @@ export default function Scuderia() {
         </section>
       )}
 
-      {/* RECENT RESULTS */}
+      {/* ПОСЛЕДНИЕ ГОНКИ */}
       {state.status === "ready" && lastRaces.length > 0 && (
         <section className="border-t border-line">
           <div className="mx-auto max-w-7xl px-5 py-20">
-            <SectionTitle kicker="RISULTATI" title="Recent races" className="mb-10" />
+            <SectionTitle kicker="RISULTATI" title="Последние гонки" className="mb-10" />
             <div className="divide-y divide-line overflow-hidden rounded-xl border border-line">
               {lastRaces.map((race, i) => (
                 <Reveal key={race.round} delay={i * 0.06}>
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-3 bg-panel px-6 py-5 transition-colors hover:bg-panel2">
                     <span className="w-14 font-digits text-xs text-dim">R{race.round}</span>
                     <span className="min-w-40 flex-1 font-bold uppercase tracking-wide">
-                      {race.raceName}
+                      {gpRu(race.raceName)}
                     </span>
                     <span className="flex gap-2">
                       {(race.Results ?? []).map((res) => (
@@ -415,7 +416,7 @@ export default function Scuderia() {
                       ))}
                     </span>
                     <span className="font-digits text-sm text-giallo">
-                      +{(race.Results ?? []).reduce((s, r) => s + +r.points, 0)} PTS
+                      +{(race.Results ?? []).reduce((s, r) => s + +r.points, 0)} ОЧК.
                     </span>
                   </div>
                 </Reveal>
@@ -425,11 +426,11 @@ export default function Scuderia() {
         </section>
       )}
 
-      {/* CTA → HERITAGE */}
+      {/* ПЕРЕХОД К ИСТОРИИ */}
       <section className="border-t border-line">
         <Link to="/heritage" className="group block overflow-hidden py-20 text-center md:py-28">
           <Reveal>
-            <p className="font-digits text-[10px] tracking-[0.4em] text-dim">SINCE 1947</p>
+            <p className="text-[10px] font-bold tracking-[0.4em] text-dim">С 1947 ГОДА · ИСТОРИЯ СКУДЕРИИ</p>
             <p className="mt-4 text-6xl font-black uppercase italic tracking-tight text-outline transition-all duration-500 group-hover:text-rosso group-hover:[-webkit-text-stroke:0px] md:text-8xl">
               La Storia →
             </p>
