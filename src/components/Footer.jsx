@@ -26,7 +26,6 @@ export default function Footer() {
             <li><Link className="transition-colors hover:text-rosso" to="/legends">Легенды</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/heritage">История</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/credits">Источники</Link></li>
-            <li className="text-dim/50">Прогнозы — скоро</li>
           </ul>
         </div>
         <div>
@@ -57,10 +56,39 @@ export default function Footer() {
             </a>
             .
           </p>
+          <p className="mt-4 text-sm leading-relaxed text-dim">
+            Разработка —{" "}
+            <a
+              className="text-white underline decoration-rosso underline-offset-4"
+              href="https://github.com/imaO0O"
+              target="_blank"
+              rel="noreferrer"
+            >
+              imaO0O
+            </a>
+            . Код открыт:{" "}
+            <a
+              className="text-white underline decoration-rosso underline-offset-4"
+              href="https://github.com/imaO0O/ferrari-strategy"
+              target="_blank"
+              rel="noreferrer"
+            >
+              ferrari-strategy
+            </a>
+            .
+          </p>
         </div>
       </div>
       <div className="border-t border-line/60 py-4 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-dim/60">
-        Forza Ferrari · {new Date().getFullYear()} · Сделано фанатом для фанатов
+        Forza Ferrari · {new Date().getFullYear()} · Сделано фанатом для фанатов ·{" "}
+        <a
+          className="transition-colors hover:text-rosso"
+          href="https://github.com/imaO0O"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Разработка: imaO0O
+        </a>
       </div>
     </footer>
   );

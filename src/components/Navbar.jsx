@@ -140,7 +140,7 @@ export default function Navbar() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                ПРОГНОЗЫ — СКОРО
+                FORZA FERRARI · РАЗРАБОТКА: IMAO0O
               </motion.p>
             </nav>
             <Marquee

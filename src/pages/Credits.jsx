@@ -80,6 +80,27 @@ export default function Credits() {
             (Exo 2, Orbitron).
           </p>
           <p>
+            <span className="text-white">Разработка.</span> Сайт придуман и собран{" "}
+            <a
+              className="underline decoration-rosso underline-offset-4"
+              href="https://github.com/imaO0O"
+              target="_blank"
+              rel="noreferrer"
+            >
+              imaO0O
+            </a>
+            ; исходный код открыт в репозитории{" "}
+            <a
+              className="underline decoration-rosso underline-offset-4"
+              href="https://github.com/imaO0O/ferrari-strategy"
+              target="_blank"
+              rel="noreferrer"
+            >
+              ferrari-strategy
+            </a>
+            .
+          </p>
+          <p>
             <span className="text-white">3D.</span> Трактор на главном экране — процедурная
             стилизованная модель, собранная из примитивов Three.js (React Three Fiber)
             специально для этого проекта (и да, это дружеская шутка про «стратегию Ferrari»).
