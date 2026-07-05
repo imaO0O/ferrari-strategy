@@ -23,6 +23,7 @@ export default function Footer() {
             <li><Link className="transition-colors hover:text-rosso" to="/races">Гонки</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/telemetry">Телеметрия</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/games">Игры</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/legends">Легенды</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/heritage">История</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/credits">Источники</Link></li>
             <li className="text-dim/50">Прогнозы — скоро</li>

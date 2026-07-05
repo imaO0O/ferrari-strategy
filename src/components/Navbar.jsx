@@ -10,8 +10,8 @@ const LINKS = [
   { to: "/races", label: "Гонки" },
   { to: "/telemetry", label: "Телеметрия" },
   { to: "/games", label: "Игры" },
+  { to: "/legends", label: "Легенды" },
   { to: "/heritage", label: "История" },
-  { to: "/credits", label: "Источники" },
 ];
 
 const SOON = [];

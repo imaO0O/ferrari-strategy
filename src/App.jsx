@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Races from "./pages/Races";
 import Games from "./pages/Games";
 import Telemetry from "./pages/Telemetry";
+import Legends from "./pages/Legends";
 import Heritage from "./pages/Heritage";
 import Credits from "./pages/Credits";
 
@@ -53,6 +54,7 @@ export default function App() {
           <Route path="/games" element={<Games />} />
           <Route path="/game" element={<Navigate to="/games" replace />} />
           <Route path="/telemetry" element={<Telemetry />} />
+          <Route path="/legends" element={<Legends />} />
           <Route path="/heritage" element={<Heritage />} />
           <Route path="/credits" element={<Credits />} />
           <Route path="*" element={<Navigate to="/" replace />} />
