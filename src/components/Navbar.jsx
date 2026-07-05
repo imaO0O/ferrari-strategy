@@ -8,12 +8,13 @@ const LINKS = [
   { to: "/", label: "Скудерия" },
   { to: "/dashboard", label: "Дашборд" },
   { to: "/races", label: "Гонки" },
-  { to: "/game", label: "Игра" },
+  { to: "/telemetry", label: "Телеметрия" },
+  { to: "/games", label: "Игры" },
   { to: "/heritage", label: "История" },
   { to: "/credits", label: "Источники" },
 ];
 
-const SOON = ["Прогнозы"];
+const SOON = [];
 
 function Wordmark() {
   return (

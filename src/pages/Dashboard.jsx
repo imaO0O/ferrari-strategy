@@ -212,8 +212,8 @@ export default function Dashboard() {
             <div className="mx-auto grid max-w-7xl gap-5 px-5 py-16 sm:grid-cols-3">
               {[
                 { to: "/", label: "Скудерия", sub: "Всё о Ferrari" },
-                { to: "/races", label: "Гонки", sub: "Календарь и результаты" },
-                { to: "/game", label: "Игра", sub: "Реакция на старт" },
+                { to: "/telemetry", label: "Телеметрия", sub: "Реплей гонки и радио" },
+                { to: "/games", label: "Игры", sub: "Реакция · Пит-стоп · Викторина" },
               ].map(({ to, label, sub }, i) => (
                 <Reveal key={to} delay={i * 0.08}>
                   <Link
