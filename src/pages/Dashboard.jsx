@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageWrap from "../components/PageWrap";
+import OnThisDay from "../components/OnThisDay";
 import { Reveal, KineticTitle, SectionTitle, Marquee } from "../components/ui";
 import { Countdown, PosChip, raceDate } from "../components/racing";
 import { api } from "../lib/api";
@@ -136,6 +137,9 @@ export default function Dashboard() {
             ) : (
               <p className="text-dim">Сезон завершён — увидимся на зимних тестах. 🏁</p>
             )}
+            <div className="mt-8">
+              <OnThisDay />
+            </div>
           </section>
 
           {/* ЗАЧЁТЫ */}
