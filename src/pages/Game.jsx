@@ -8,6 +8,7 @@ import { Reveal, KineticTitle, Marquee } from "../components/ui";
 const LIGHTS = 5;
 const STEP_MS = 900;
 const STORAGE_KEY = "fs-reaction-records";
+const ATTEMPTS_KEY = "fs-reaction-attempts";
 
 const loadRecords = () => {
   try {
@@ -17,20 +18,51 @@ const loadRecords = () => {
   }
 };
 
+const loadAttempts = () => {
+  const n = Number(localStorage.getItem(ATTEMPTS_KEY));
+  return Number.isFinite(n) ? n : 0;
+};
+
 export default function Game() {
   // idle | arming | armed | go | result | jump
   const [phase, setPhase] = useState("idle");
   const [lit, setLit] = useState(0);
   const [reaction, setReaction] = useState(null);
   const [records, setRecords] = useState(loadRecords);
+  const [attempts, setAttempts] = useState(loadAttempts);
   const timers = useRef([]);
   const goAt = useRef(0);
+  const stageClickRef = useRef(() => {});
 
   const clearTimers = () => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
   };
   useEffect(() => clearTimers, []);
+
+  // реагировать можно и с клавиатуры — пробел или Enter
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.code === "Space" || e.code === "Enter") {
+        e.preventDefault();
+        stageClickRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const bumpAttempts = () => {
+    setAttempts((n) => {
+      const next = n + 1;
+      try {
+        localStorage.setItem(ATTEMPTS_KEY, String(next));
+      } catch {
+        /* приватный режим */
+      }
+      return next;
+    });
+  };
 
   const start = () => {
     clearTimers();
@@ -73,6 +105,7 @@ export default function Game() {
       clearTimers();
       setLit(0);
       setPhase("jump");
+      bumpAttempts();
       return;
     }
     if (phase === "go") {
@@ -80,18 +113,23 @@ export default function Game() {
       setReaction(ms);
       setPhase("result");
       saveRecord(ms);
+      bumpAttempts();
     }
   };
+  stageClickRef.current = stageClick;
 
   const best = records[0]?.ms ?? null;
+  const average = records.length
+    ? Math.round(records.reduce((s, r) => s + r.ms, 0) / records.length)
+    : null;
 
   const hint = {
-    idle: "Нажми, чтобы начать",
+    idle: "Нажми или жми ПРОБЕЛ, чтобы начать",
     arming: "Жди, когда погаснут огни…",
     armed: "Жди…",
     go: "ЖМИ!",
-    result: "Нажми, чтобы попробовать ещё раз",
-    jump: "Фальстарт! Нажми, чтобы начать заново",
+    result: "Ещё раз? Клик или ПРОБЕЛ",
+    jump: "Фальстарт! Клик или ПРОБЕЛ — заново",
   }[phase];
 
   return (
@@ -169,6 +207,12 @@ export default function Game() {
             <p className="mt-2 text-sm text-dim">
               Лучшее время: <span className="font-digits text-giallo">{best} мс</span>
               {best < 200 && " — быстрее пилота Ф1! 🏆"}
+            </p>
+          )}
+          {average != null && (
+            <p className="mt-1 text-sm text-dim">
+              Среднее (топ-10): <span className="font-digits">{average} мс</span> · Попыток:{" "}
+              <span className="font-digits">{attempts}</span>
             </p>
           )}
           {records.length === 0 ? (
