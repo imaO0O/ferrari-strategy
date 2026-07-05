@@ -98,7 +98,7 @@ export default function Heritage() {
       </section>
 
       <Marquee
-        items={["LA STORIA", "✦", "MARANELLO", "✦", "SINCE 1947", "✦", "ROSSO CORSA", "✦"]}
+        items={["LA STORIA", "✦", "MARANELLO", "✦", "SINCE 1947", "✦", "FERRARI STRATEGY", "✦"]}
         speed={24}
         reverse
         className="rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
