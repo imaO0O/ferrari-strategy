@@ -8,7 +8,7 @@ import PitStop from "../components/games/PitStop";
 const TABS = [
   { id: "reaction", label: "Реакция", sub: "Огни погасли — жми!" },
   { id: "pitstop", label: "Пит-стоп", sub: "Смени 4 колеса" },
-  { id: "quiz", label: "Викторина", sub: "12 вопросов о Ferrari" },
+  { id: "quiz", label: "Викторина", sub: "20 вопросов о Ferrari" },
 ];
 
 export default function Games() {

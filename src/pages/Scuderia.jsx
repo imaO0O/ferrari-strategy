@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import PageWrap from "../components/PageWrap";
 import Magnetic from "../components/Magnetic";
+import Confetti from "../components/Confetti";
 import {
   Reveal,
   ImageReveal,
@@ -218,11 +219,37 @@ export default function Scuderia() {
     };
   }, [state]);
 
+  // салют, если Ferrari выиграла последнюю гонку (раз за сессию на гонку)
+  const [confetti, setConfetti] = useState(false);
+  useEffect(() => {
+    if (state.status !== "ready") return;
+    const latest = state.lastRaces[0];
+    if (!latest?.Results?.some((r) => +r.position === 1)) return;
+    const key = `fs-confetti-${state.seasonLabel}-${latest.round}`;
+    if (sessionStorage.getItem(key)) return;
+    try {
+      sessionStorage.setItem(key, "1");
+    } catch {
+      /* приватный режим */
+    }
+    setConfetti(true);
+  }, [state]);
+
   const { team, gapLabel, drivers, byDriver, podiums, lastRaces, nextRace, seasonLabel, allTimeWins } =
     state.status === "ready" ? state : {};
 
   return (
     <PageWrap>
+      {confetti && (
+        <>
+          <Confetti onDone={() => setConfetti(false)} />
+          <div className="pointer-events-none fixed inset-x-0 bottom-10 z-[94] text-center">
+            <span className="rounded-md bg-rosso px-5 py-3 text-sm font-black uppercase tracking-widest shadow-lg">
+              Ferrari выиграла последнюю гонку! Forza! 🏆
+            </span>
+          </div>
+        </>
+      )}
       {/* ГЛАВНЫЙ ЭКРАН */}
       <section ref={heroRef} className="relative flex h-[92vh] min-h-[560px] items-end overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroY }}>

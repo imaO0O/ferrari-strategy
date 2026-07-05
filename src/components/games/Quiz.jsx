@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Reveal, EASE } from "../ui";
+import ShareButton from "./ShareButton";
 import { QUIZ } from "../../data/quiz";
 
 const BEST_KEY = "fs-quiz-best";
@@ -72,12 +73,15 @@ export default function Quiz() {
             Лучший результат: <span className="font-digits text-giallo">{best}/{QUIZ.length}</span>
           </p>
         )}
-        <button
-          onClick={restart}
-          className="mt-8 rounded-md bg-rosso px-8 py-3 text-sm font-black uppercase tracking-widest transition-transform hover:scale-105"
-        >
-          Пройти ещё раз
-        </button>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={restart}
+            className="rounded-md bg-rosso px-8 py-3 text-sm font-black uppercase tracking-widest transition-transform hover:scale-105"
+          >
+            Пройти ещё раз
+          </button>
+          <ShareButton text={`Викторина о Ferrari: ${score}/${QUIZ.length} 🏎️`} className="py-3" />
+        </div>
       </Reveal>
     );
   }

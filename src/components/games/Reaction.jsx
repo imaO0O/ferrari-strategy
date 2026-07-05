@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "../ui";
+import ShareButton from "./ShareButton";
 
 /* Реакция на старт: пять огней зажигаются по одному, гаснут после случайной
    паузы — жми как можно быстрее. Клик до того, как огни погасли, — фальстарт. */
@@ -192,6 +193,9 @@ export default function Reaction() {
             Среднее (топ-10): <span className="font-digits">{average} мс</span> · Попыток:{" "}
             <span className="font-digits">{attempts}</span>
           </p>
+        )}
+        {best != null && (
+          <ShareButton text={`Моя реакция на старт: ${best} мс 🚦`} className="mt-4" />
         )}
         {records.length === 0 ? (
           <p className="mt-6 text-sm text-dim">Пока пусто. Рекорды сохраняются в этом браузере.</p>
