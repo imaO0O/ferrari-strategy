@@ -58,7 +58,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-line/60 py-4 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-dim/60">
-        Forza Ferrari · 2026 · Сделано фанатом для фанатов
+        Forza Ferrari · {new Date().getFullYear()} · Сделано фанатом для фанатов
       </div>
     </footer>
   );
