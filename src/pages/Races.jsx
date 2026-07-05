@@ -97,24 +97,27 @@ function Results({ races }) {
   const now = Date.now();
   const finished = useMemo(() => races.filter((r) => raceDate(r).getTime() < now), [races, now]);
   const [round, setRound] = useState(finished.at(-1)?.round ?? null);
+  const [mode, setMode] = useState("race"); // race | qualifying
   const [data, setData] = useState({ status: "idle" });
 
   useEffect(() => {
     if (!round) return;
     let alive = true;
     setData({ status: "loading" });
-    api
-      .raceResults(round)
+    (mode === "race" ? api.raceResults(round) : api.qualifyingResults(round))
       .then((d) => alive && setData({ status: "ready", race: d.RaceTable.Races?.[0] ?? null }))
       .catch((e) => alive && setData({ status: "error", message: e.message }));
     return () => {
       alive = false;
     };
-  }, [round]);
+  }, [round, mode]);
 
   if (!finished.length) return <p className="text-dim">В этом сезоне ещё не было гонок.</p>;
 
-  const results = data.status === "ready" ? (data.race?.Results ?? []) : [];
+  const results =
+    data.status === "ready"
+      ? (data.race?.[mode === "race" ? "Results" : "QualifyingResults"] ?? [])
+      : [];
 
   return (
     <>
@@ -134,12 +137,71 @@ function Results({ races }) {
             </option>
           ))}
         </select>
+        <div className="flex overflow-hidden rounded-md border border-line">
+          {[
+            ["race", "Гонка"],
+            ["qualifying", "Квалификация"],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setMode(id)}
+              className={`px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
+                mode === id ? "bg-rosso text-white" : "bg-panel text-dim hover:text-white"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </Reveal>
 
       {data.status === "loading" && <div className="h-96 animate-pulse rounded-xl bg-panel" />}
       {data.status === "error" && <p className="text-dim">Не удалось загрузить результаты.</p>}
+      {data.status === "ready" && results.length === 0 && (
+        <p className="text-dim">Данных по этой сессии пока нет.</p>
+      )}
 
-      {data.status === "ready" && results.length > 0 && (
+      {data.status === "ready" && results.length > 0 && mode === "qualifying" && (
+        <Reveal className="overflow-x-auto rounded-xl border border-line">
+          <table className="w-full min-w-[640px] text-left text-sm">
+            <thead className="bg-panel2 text-[10px] uppercase tracking-[0.25em] text-dim">
+              <tr>
+                <th className="px-4 py-3">Место</th>
+                <th className="px-4 py-3">Пилот</th>
+                <th className="px-4 py-3">Команда</th>
+                <th className="px-4 py-3">Q1</th>
+                <th className="px-4 py-3">Q2</th>
+                <th className="px-4 py-3">Q3</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line bg-panel">
+              {results.map((res) => {
+                const name = driverRu(res.Driver);
+                return (
+                  <tr key={res.Driver.driverId} className="transition-colors hover:bg-panel2/70">
+                    <td className="px-4 py-3">
+                      <PosChip position={res.position} />
+                    </td>
+                    <td className="px-4 py-3 font-bold uppercase tracking-wide">
+                      <span
+                        className="mr-3 inline-block h-4 w-1 rounded-full align-middle"
+                        style={{ background: teamColor(res.Constructor.constructorId) }}
+                      />
+                      {name.given} {name.family}
+                    </td>
+                    <td className="px-4 py-3 text-dim">{res.Constructor.name}</td>
+                    <td className="px-4 py-3 font-digits">{res.Q1 ?? "—"}</td>
+                    <td className="px-4 py-3 font-digits">{res.Q2 ?? "—"}</td>
+                    <td className="px-4 py-3 font-digits text-giallo">{res.Q3 ?? "—"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Reveal>
+      )}
+
+      {data.status === "ready" && results.length > 0 && mode === "race" && (
         <>
           {/* подиум */}
           <div className="mb-8 grid gap-4 md:grid-cols-3">

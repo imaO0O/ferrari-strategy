@@ -35,6 +35,7 @@ export const api = {
   // MRData.total = Ferrari wins, all time
   ferrariAllWins: () => getJSON("/constructors/ferrari/results/1.json?limit=1"),
   raceResults: (round) => getJSON(`/current/${round}/results.json?limit=30`),
+  qualifyingResults: (round) => getJSON(`/current/${round}/qualifying.json?limit=30`),
   lastRaceResults: () => getJSON("/current/last/results.json?limit=30"),
 };
 
