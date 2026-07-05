@@ -11,7 +11,7 @@ export const commonsPage = (file) =>
 
 // Driver photos keyed by Ergast/Jolpica driverId.
 export const DRIVER_PHOTOS = {
-  leclerc: "Charles-Leclerc.jpg",
+  leclerc: "2024-08-25 Motorsport, Formel 1, Großer Preis der Niederlande 2024 STP 3978 by Stepro (cropped2).jpg",
   hamilton: "2025 Japan GP - Ferrari - Lewis Hamilton - Fanzone Stage (cropped).jpg",
 };
 
@@ -31,7 +31,7 @@ export const IMAGES = [
   { file: "Felipe Massa, Sepang 2008.jpg", label: "Фелипе Масса, Сепанг 2008" },
   { file: "Charles Leclerc, Ferrari SF90 holds off Lewis Hamilton, Mercedes F1 W10, 2019 Italian Grand Prix, Monza, 8th September.jpg", label: "Шарль Леклер, Монца 2019" },
   { file: "2025 Japan GP - Ferrari - Lewis Hamilton - FP1.jpg", label: "Льюис Хэмилтон, Ferrari, Гран-при Японии 2025" },
-  { file: "Charles-Leclerc.jpg", label: "Шарль Леклер (портрет)" },
+  { file: "2024-08-25 Motorsport, Formel 1, Großer Preis der Niederlande 2024 STP 3978 by Stepro (cropped2).jpg", label: "Шарль Леклер (портрет, 2024)" },
   { file: "2025 Japan GP - Ferrari - Lewis Hamilton - Fanzone Stage (cropped).jpg", label: "Льюис Хэмилтон (портрет, 2025)" },
   { file: "SF-24 at the Japanese GP.jpg", label: "Ferrari SF-24, Гран-при Японии" },
   { file: "Scuderia Ferrari Pit Stop2.JPG", label: "Пит-стоп Scuderia Ferrari" },
