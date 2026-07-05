@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PageWrap from "../components/PageWrap";
+import Duel from "../components/Duel";
 import { Reveal, KineticTitle, Marquee } from "../components/ui";
 import { Countdown, PosChip, raceDate } from "../components/racing";
 import { api } from "../lib/api";
@@ -11,6 +12,7 @@ const TABS = [
   { id: "results", label: "Результаты" },
   { id: "drivers", label: "Личный зачёт" },
   { id: "teams", label: "Конструкторы" },
+  { id: "duel", label: "Дуэль" },
 ];
 
 /* ── Календарь ─────────────────────────────────────────────── */
@@ -435,6 +437,7 @@ export default function Races() {
                 }))}
               />
             )}
+            {tab === "duel" && state.drivers.length >= 2 && <Duel standings={state.drivers} />}
           </>
         )}
       </section>
