@@ -37,4 +37,15 @@ export const of1 = {
   // радиопереговоры пилота в сессии (mp3-ссылки)
   teamRadio: (sessionKey, driverNumber) =>
     getJSON(`/team_radio?session_key=${sessionKey}&driver_number=${driverNumber}`),
+  // круги пилота: старт каждого круга и его длительность
+  laps: (sessionKey, driverNumber) =>
+    getJSON(`/laps?session_key=${sessionKey}&driver_number=${driverNumber}`),
+  // координаты машин (x, y) в интервале времени; driverNumber опционален.
+  // Данные тяжёлые (~3,7 Гц на машину) — запрашивать только узкими окнами!
+  locationWindow: (sessionKey, fromISO, toISO, driverNumber) =>
+    getJSON(
+      `/location?session_key=${sessionKey}` +
+        (driverNumber ? `&driver_number=${driverNumber}` : "") +
+        `&date%3E${encodeURIComponent(fromISO)}&date%3C${encodeURIComponent(toISO)}`,
+    ),
 };

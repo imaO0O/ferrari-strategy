@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import PageWrap from "../components/PageWrap";
+import TrackMap from "../components/TrackMap";
 import { Reveal, KineticTitle, Marquee, SectionTitle, EASE } from "../components/ui";
 import { of1 } from "../lib/openf1";
 
@@ -327,7 +328,10 @@ export default function Telemetry() {
       </section>
 
       {state.status === "ready" && (
-        <FerrariRadio sessionKey={state.session.session_key} drivers={state.drivers} />
+        <>
+          <TrackMap session={state.session} drivers={state.drivers} />
+          <FerrariRadio sessionKey={state.session.session_key} drivers={state.drivers} />
+        </>
       )}
     </PageWrap>
   );
