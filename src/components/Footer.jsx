@@ -19,9 +19,12 @@ export default function Footer() {
           <p className="mb-3 font-digits text-[10px] tracking-[0.35em] text-rosso">РАЗДЕЛЫ</p>
           <ul className="space-y-2 text-sm font-bold uppercase tracking-wider">
             <li><Link className="transition-colors hover:text-rosso" to="/">Скудерия</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/dashboard">Дашборд</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/races">Гонки</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/game">Игра</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/heritage">История</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/credits">Источники</Link></li>
-            <li className="text-dim/50">Дашборд · Гонки · Игра — скоро</li>
+            <li className="text-dim/50">Прогнозы — скоро</li>
           </ul>
         </div>
         <div>

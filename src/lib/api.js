@@ -34,6 +34,8 @@ export const api = {
     getJSON(`/circuits/${circuitId}/constructors/ferrari/results/1.json?limit=1`),
   // MRData.total = Ferrari wins, all time
   ferrariAllWins: () => getJSON("/constructors/ferrari/results/1.json?limit=1"),
+  raceResults: (round) => getJSON(`/current/${round}/results.json?limit=30`),
+  lastRaceResults: () => getJSON("/current/last/results.json?limit=30"),
 };
 
 // The last Ferrari constructors' title was clinched at the 2008 Brazilian GP.

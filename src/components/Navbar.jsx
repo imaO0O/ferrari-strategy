@@ -6,11 +6,14 @@ import Magnetic from "./Magnetic";
 
 const LINKS = [
   { to: "/", label: "Скудерия" },
+  { to: "/dashboard", label: "Дашборд" },
+  { to: "/races", label: "Гонки" },
+  { to: "/game", label: "Игра" },
   { to: "/heritage", label: "История" },
   { to: "/credits", label: "Источники" },
 ];
 
-const SOON = ["Дашборд", "Гонки", "Игра"];
+const SOON = ["Прогнозы"];
 
 function Wordmark() {
   return (
@@ -136,7 +139,7 @@ export default function Navbar() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                ДАШБОРД · ГОНКИ · ИГРА — СКОРО
+                ПРОГНОЗЫ — СКОРО
               </motion.p>
             </nav>
             <Marquee

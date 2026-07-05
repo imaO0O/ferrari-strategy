@@ -1,0 +1,236 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import PageWrap from "../components/PageWrap";
+import { Reveal, KineticTitle, SectionTitle, Marquee } from "../components/ui";
+import { Countdown, PosChip, raceDate } from "../components/racing";
+import { api } from "../lib/api";
+import { gpRu, countryRu, driverRu, formatDateRu, teamColor } from "../lib/i18n";
+
+function StandingsCard({ title, rows, linkTab }) {
+  return (
+    <Reveal className="rounded-xl border border-line bg-panel p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-xl font-black uppercase italic">{title}</h3>
+        <Link
+          to={`/races?tab=${linkTab}`}
+          className="text-xs font-bold uppercase tracking-widest text-dim transition-colors hover:text-rosso"
+        >
+          Вся таблица →
+        </Link>
+      </div>
+      <div className="space-y-2">
+        {rows.map((row) => (
+          <div key={row.key} className="flex items-center gap-3 rounded-md bg-panel2/60 px-3 py-2">
+            <PosChip position={row.position} />
+            <span className="h-6 w-1 rounded-full" style={{ background: row.color }} />
+            <span className="min-w-0 flex-1 truncate font-bold uppercase tracking-wide">
+              {row.name}
+            </span>
+            <span className="font-digits text-sm text-giallo">{row.points}</span>
+          </div>
+        ))}
+      </div>
+    </Reveal>
+  );
+}
+
+export default function Dashboard() {
+  const [state, setState] = useState({ status: "loading" });
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const [ds, cs, sched, last] = await Promise.all([
+          api.driverStandings(),
+          api.constructorStandings(),
+          api.schedule(),
+          api.lastRaceResults(),
+        ]);
+        if (!alive) return;
+        const now = Date.now();
+        setState({
+          status: "ready",
+          drivers: (ds.StandingsTable.StandingsLists[0]?.DriverStandings ?? []).slice(0, 5),
+          teams: (cs.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? []).slice(0, 5),
+          nextRace:
+            (sched.RaceTable.Races ?? []).find((r) => raceDate(r).getTime() > now) ?? null,
+          lastRace: last.RaceTable.Races?.[0] ?? null,
+          season: sched.RaceTable.season,
+        });
+      } catch (e) {
+        if (alive) setState({ status: "error", message: e.message });
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const { drivers, teams, nextRace, lastRace, season } = state.status === "ready" ? state : {};
+
+  return (
+    <PageWrap>
+      <section className="mx-auto max-w-7xl px-5 pb-16 pt-32 md:pt-40">
+        <Reveal>
+          <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
+            <span className="inline-block h-px w-10 bg-giallo" />
+            СЕЗОН {season ?? "…"} · ЖИВЫЕ ДАННЫЕ
+          </p>
+        </Reveal>
+        <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
+          <KineticTitle text="ДАШБОРД" />
+        </h1>
+      </section>
+
+      <Marquee
+        items={["FERRARI STRATEGY", "✦", "LIVE", "✦", "FORMULA 1", "✦"]}
+        speed={24}
+        className="-rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
+        itemClassName="mx-4"
+      />
+
+      {state.status === "error" && (
+        <div className="mx-auto max-w-7xl px-5 py-16 text-center">
+          <p className="text-xl font-bold">Живые данные сейчас недоступны.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-6 rounded-md bg-rosso px-6 py-3 text-sm font-black uppercase tracking-widest"
+          >
+            Повторить
+          </button>
+        </div>
+      )}
+
+      {state.status === "loading" && (
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-16 md:grid-cols-2">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-72 animate-pulse rounded-xl bg-panel" />
+          ))}
+        </div>
+      )}
+
+      {state.status === "ready" && (
+        <>
+          {/* СЛЕДУЮЩАЯ ГОНКА */}
+          <section className="mx-auto max-w-7xl px-5 py-16">
+            {nextRace ? (
+              <Reveal className="rounded-xl border border-line bg-panel p-8 md:p-10">
+                <div className="flex flex-wrap items-end justify-between gap-8">
+                  <div>
+                    <span className="rounded-md bg-panel2 px-2.5 py-1 font-digits text-xs text-giallo">
+                      ЭТАП {nextRace.round} · СЛЕДУЮЩАЯ ГОНКА
+                    </span>
+                    <h2 className="mt-4 text-4xl font-black uppercase italic leading-none md:text-6xl">
+                      {gpRu(nextRace.raceName)}
+                    </h2>
+                    <p className="mt-3 text-dim">
+                      {nextRace.Circuit.circuitName} — {nextRace.Circuit.Location.locality},{" "}
+                      {countryRu(nextRace.Circuit.Location.country)} ·{" "}
+                      {formatDateRu(nextRace.date, nextRace.time)}
+                    </p>
+                  </div>
+                  <Countdown target={raceDate(nextRace).getTime()} />
+                </div>
+              </Reveal>
+            ) : (
+              <p className="text-dim">Сезон завершён — увидимся на зимних тестах. 🏁</p>
+            )}
+          </section>
+
+          {/* ЗАЧЁТЫ */}
+          <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-16 md:grid-cols-2">
+            <StandingsCard
+              title="Личный зачёт · топ-5"
+              linkTab="drivers"
+              rows={drivers.map((d) => {
+                const name = driverRu(d.Driver);
+                return {
+                  key: d.Driver.driverId,
+                  position: d.position,
+                  name: `${name.given} ${name.family}`,
+                  points: d.points,
+                  color: teamColor(d.Constructors.at(-1)?.constructorId),
+                };
+              })}
+            />
+            <StandingsCard
+              title="Кубок конструкторов · топ-5"
+              linkTab="teams"
+              rows={teams.map((t) => ({
+                key: t.Constructor.constructorId,
+                position: t.position,
+                name: t.Constructor.name,
+                points: t.points,
+                color: teamColor(t.Constructor.constructorId),
+              }))}
+            />
+          </section>
+
+          {/* ПОДИУМ ПОСЛЕДНЕЙ ГОНКИ */}
+          {lastRace && (
+            <section className="border-t border-line">
+              <div className="mx-auto max-w-7xl px-5 py-16">
+                <SectionTitle
+                  kicker="ULTIMA GARA"
+                  title={`Подиум · ${gpRu(lastRace.raceName)}`}
+                  className="mb-10"
+                />
+                <div className="grid gap-6 md:grid-cols-3">
+                  {(lastRace.Results ?? []).slice(0, 3).map((res, i) => {
+                    const name = driverRu(res.Driver);
+                    return (
+                      <Reveal
+                        key={res.Driver.driverId}
+                        delay={i * 0.1}
+                        className={`relative overflow-hidden rounded-xl border border-line bg-panel p-6 ${
+                          i === 0 ? "md:-translate-y-3" : ""
+                        }`}
+                      >
+                        <span className="pointer-events-none absolute -right-3 -top-9 font-digits text-[7rem] font-black leading-none text-outline-rosso opacity-70">
+                          {res.position}
+                        </span>
+                        <span className="h-8 w-1.5 rounded-full" style={{ background: teamColor(res.Constructor.constructorId), display: "inline-block" }} />
+                        <p className="mt-4 text-lg font-semibold text-dim">{name.given}</p>
+                        <h3 className="text-3xl font-black uppercase italic leading-none">
+                          {name.family}
+                        </h3>
+                        <p className="mt-2 text-sm text-dim">{res.Constructor.name}</p>
+                        <p className="mt-4 font-digits text-sm text-giallo">
+                          {res.Time?.time ?? res.status} · +{res.points} очк.
+                        </p>
+                      </Reveal>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ПЛИТКИ-ССЫЛКИ */}
+          <section className="border-t border-line">
+            <div className="mx-auto grid max-w-7xl gap-5 px-5 py-16 sm:grid-cols-3">
+              {[
+                { to: "/", label: "Скудерия", sub: "Всё о Ferrari" },
+                { to: "/races", label: "Гонки", sub: "Календарь и результаты" },
+                { to: "/game", label: "Игра", sub: "Реакция на старт" },
+              ].map(({ to, label, sub }, i) => (
+                <Reveal key={to} delay={i * 0.08}>
+                  <Link
+                    to={to}
+                    className="group block rounded-xl border border-line bg-panel p-6 transition-colors hover:border-rosso/60"
+                  >
+                    <p className="text-2xl font-black uppercase italic transition-colors group-hover:text-rosso">
+                      {label} →
+                    </p>
+                    <p className="mt-1 text-sm text-dim">{sub}</p>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+    </PageWrap>
+  );
+}

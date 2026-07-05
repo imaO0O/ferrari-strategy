@@ -8,6 +8,9 @@ import StartLights from "./components/StartLights";
 import CustomCursor from "./components/CustomCursor";
 import ScrollProgress from "./components/ScrollProgress";
 import Scuderia from "./pages/Scuderia";
+import Dashboard from "./pages/Dashboard";
+import Races from "./pages/Races";
+import Game from "./pages/Game";
 import Heritage from "./pages/Heritage";
 import Credits from "./pages/Credits";
 
@@ -44,6 +47,9 @@ export default function App() {
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Scuderia />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/races" element={<Races />} />
+          <Route path="/game" element={<Game />} />
           <Route path="/heritage" element={<Heritage />} />
           <Route path="/credits" element={<Credits />} />
           <Route path="*" element={<Navigate to="/" replace />} />

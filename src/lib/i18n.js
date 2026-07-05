@@ -27,6 +27,23 @@ const GP_RU = {
   "Qatar Grand Prix": "Гран-при Катара",
   "Abu Dhabi Grand Prix": "Гран-при Абу-Даби",
   "Madrid Grand Prix": "Гран-при Мадрида",
+  "Barcelona Grand Prix": "Гран-при Барселоны",
+  "Mexican Grand Prix": "Гран-при Мексики",
+  "Brazilian Grand Prix": "Гран-при Бразилии",
+  "French Grand Prix": "Гран-при Франции",
+  "German Grand Prix": "Гран-при Германии",
+  "Portuguese Grand Prix": "Гран-при Португалии",
+  "Russian Grand Prix": "Гран-при России",
+  "Turkish Grand Prix": "Гран-при Турции",
+  "Styrian Grand Prix": "Гран-при Штирии",
+  "Tuscan Grand Prix": "Гран-при Тосканы",
+  "Eifel Grand Prix": "Гран-при Айфеля",
+  "Sakhir Grand Prix": "Гран-при Сахира",
+  "70th Anniversary Grand Prix": "Гран-при 70-летия",
+  "Korean Grand Prix": "Гран-при Кореи",
+  "Indian Grand Prix": "Гран-при Индии",
+  "Malaysian Grand Prix": "Гран-при Малайзии",
+  "European Grand Prix": "Гран-при Европы",
 };
 
 const COUNTRY_RU = {
@@ -58,13 +75,49 @@ const COUNTRY_RU = {
   Singapore: "Сингапур",
 };
 
-// Пилоты Ferrari (по driverId из API); для остальных остаётся латиница.
+// Пилоты (по driverId из API); для неизвестных остаётся латиница из API.
 const DRIVER_RU = {
   leclerc: { given: "Шарль", family: "Леклер" },
   hamilton: { given: "Льюис", family: "Хэмилтон" },
   sainz: { given: "Карлос", family: "Сайнс" },
   bearman: { given: "Оливер", family: "Бирман" },
+  max_verstappen: { given: "Макс", family: "Ферстаппен" },
+  norris: { given: "Ландо", family: "Норрис" },
+  piastri: { given: "Оскар", family: "Пиастри" },
+  russell: { given: "Джордж", family: "Расселл" },
+  antonelli: { given: "Кими", family: "Антонелли" },
+  alonso: { given: "Фернандо", family: "Алонсо" },
+  stroll: { given: "Лэнс", family: "Стролл" },
+  gasly: { given: "Пьер", family: "Гасли" },
+  colapinto: { given: "Франко", family: "Колапинто" },
+  ocon: { given: "Эстебан", family: "Окон" },
+  albon: { given: "Александр", family: "Албон" },
+  hadjar: { given: "Исак", family: "Хаджар" },
+  lawson: { given: "Лиам", family: "Лоусон" },
+  tsunoda: { given: "Юки", family: "Цунода" },
+  hulkenberg: { given: "Нико", family: "Хюлькенберг" },
+  bortoleto: { given: "Габриэл", family: "Бортолето" },
+  perez: { given: "Серхио", family: "Перес" },
+  bottas: { given: "Валттери", family: "Боттас" },
 };
+
+// Фирменные цвета команд для полосок в таблицах (по constructorId).
+export const TEAM_COLORS = {
+  ferrari: "#e10600",
+  red_bull: "#3671c6",
+  mercedes: "#27f4d2",
+  mclaren: "#ff8000",
+  aston_martin: "#229971",
+  alpine: "#0093cc",
+  williams: "#64c4ff",
+  rb: "#6692ff",
+  sauber: "#52e252",
+  audi: "#52e252",
+  haas: "#b6babd",
+  cadillac: "#c4a44d",
+};
+
+export const teamColor = (constructorId) => TEAM_COLORS[constructorId] ?? "#8a8a93";
 
 export const gpRu = (name) => GP_RU[name] ?? name;
 export const countryRu = (name) => COUNTRY_RU[name] ?? name;
