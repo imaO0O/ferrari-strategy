@@ -11,6 +11,7 @@ import {
   Marquee,
   SectionTitle,
 } from "../components/ui";
+import { Countdown } from "../components/racing";
 import { api, daysSinceLastTitle } from "../lib/api";
 import { commonsFile, DRIVER_PHOTOS } from "../lib/images";
 import { gpRu, countryRu, driverRu, formatDateRu } from "../lib/i18n";
@@ -87,36 +88,6 @@ function deriveSeason({ cs, ds, sched, fr, allWins }) {
     seasonLabel: fr.RaceTable.season,
     allTimeWins: +allWins.total || null,
   };
-}
-
-function Countdown({ target }) {
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const diff = Math.max(0, target - now);
-  const cells = [
-    [Math.floor(diff / 86_400_000), "ДНИ"],
-    [Math.floor(diff / 3_600_000) % 24, "ЧАС"],
-    [Math.floor(diff / 60_000) % 60, "МИН"],
-    [Math.floor(diff / 1_000) % 60, "СЕК"],
-  ];
-  return (
-    <div className="flex items-start gap-3 md:gap-5">
-      {cells.map(([v, label], i) => (
-        <div key={label} className="flex items-start gap-3 md:gap-5">
-          {i > 0 && <span className="pt-1 font-digits text-3xl text-rosso md:text-5xl">:</span>}
-          <div className="text-center">
-            <span className="font-digits text-4xl font-bold tabular-nums md:text-6xl">
-              {String(v).padStart(2, "0")}
-            </span>
-            <p className="mt-1 text-[9px] font-bold tracking-[0.35em] text-dim">{label}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function FormBars({ results }) {
@@ -262,7 +233,7 @@ export default function Scuderia() {
                 className="absolute inset-0"
                 style={{
                   background:
-                    "radial-gradient(60% 50% at 62% 42%, rgb(255 40 0 / 0.16), transparent 70%)",
+                    "radial-gradient(58% 48% at 60% 40%, rgb(122 16 6 / 0.55), rgb(38 8 5 / 0.25) 55%, transparent 78%)",
                 }}
               />
               <p className="absolute left-1/2 top-[36%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[15vw] font-black italic leading-none text-outline opacity-60">
@@ -319,7 +290,7 @@ export default function Scuderia() {
       </section>
 
       <Marquee
-        items={["FORZA FERRARI", "✦", "TIFOSI", "✦", "ROSSO CORSA", "✦", "MARANELLO", "✦"]}
+        items={["FORZA FERRARI", "✦", "TIFOSI", "✦", "FERRARI STRATEGY", "✦", "MARANELLO", "✦"]}
         speed={22}
         className="-rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
         itemClassName="mx-4"
