@@ -2,8 +2,8 @@ import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial } from "@react-three/drei";
 
-/* Процедурный болид Ф1 в духе студийного рендера: глянцевая красно-чёрная
-   ливрея (clearcoat), зеркальный пол, тёмно-красная студия.
+/* Процедурный красный трактор в студийном свете — фирменная шутка про
+   «стратегию Ferrari». Глянцевая ливрея (clearcoat), зеркальный пол.
    Ни одного стороннего 3D-ассета и ни одного чужого логотипа. */
 
 const paint = {
@@ -21,215 +21,180 @@ function Rosso() {
 function Black() {
   return <meshPhysicalMaterial {...paint.black} />;
 }
-function Carbon() {
-  return <meshStandardMaterial {...paint.carbon} />;
-}
 
-function Wheel({ position, width = 0.32, spinRef }) {
+function Wheel({ position, radius = 0.34, width = 0.3, spinRef }) {
   return (
     <group position={position} ref={(el) => el && spinRef.current.push(el)}>
       {/* покрышка */}
       <mesh rotation-z={Math.PI / 2}>
-        <cylinderGeometry args={[0.36, 0.36, width, 32]} />
+        <cylinderGeometry args={[radius, radius, width, 28]} />
         <meshStandardMaterial {...paint.tire} />
       </mesh>
-      {/* жёлтая маркировка на боковине (без надписей) */}
-      {[1, -1].map((side) => (
-        <mesh key={side} position={[side * (width / 2 - 0.004), 0, 0]} rotation-y={Math.PI / 2}>
-          <torusGeometry args={[0.245, 0.008, 8, 40]} />
-          <meshStandardMaterial {...paint.giallo} />
-        </mesh>
-      ))}
-      {/* диск */}
+      {/* грунтозацепы — рёбра по окружности */}
+      {Array.from({ length: 12 }).map((_, i) => {
+        const a = (i / 12) * Math.PI * 2;
+        return (
+          <mesh
+            key={i}
+            position={[0, Math.cos(a) * radius * 0.92, Math.sin(a) * radius * 0.92]}
+            rotation-x={-a}
+          >
+            <boxGeometry args={[width + 0.02, 0.05, radius * 0.22]} />
+            <meshStandardMaterial {...paint.tire} />
+          </mesh>
+        );
+      })}
+      {/* ступица */}
       <mesh rotation-z={Math.PI / 2}>
-        <cylinderGeometry args={[0.21, 0.21, width + 0.01, 24]} />
+        <cylinderGeometry args={[radius * 0.55, radius * 0.55, width + 0.02, 20]} />
         <meshPhysicalMaterial {...paint.rim} />
       </mesh>
-      {/* красная центральная гайка */}
       <mesh rotation-z={Math.PI / 2}>
-        <cylinderGeometry args={[0.05, 0.05, width + 0.03, 12]} />
-        <meshPhysicalMaterial {...paint.rosso} />
+        <cylinderGeometry args={[radius * 0.34, radius * 0.34, width + 0.04, 16]} />
+        <meshStandardMaterial {...paint.giallo} />
+      </mesh>
+      <mesh rotation-z={Math.PI / 2}>
+        <cylinderGeometry args={[radius * 0.12, radius * 0.12, width + 0.06, 12]} />
+        <Rosso />
       </mesh>
     </group>
   );
 }
 
-function Arm({ from, to }) {
-  const mx = (from[0] + to[0]) / 2;
-  const mz = (from[2] + to[2]) / 2;
-  const len = Math.hypot(to[0] - from[0], to[2] - from[2]);
-  const angle = Math.atan2(to[2] - from[2], to[0] - from[0]);
-  return (
-    <mesh position={[mx, from[1], mz]} rotation-y={-angle}>
-      <boxGeometry args={[len, 0.035, 0.07]} />
-      <Carbon />
-    </mesh>
-  );
-}
-
-function F1Car() {
-  const car = useRef();
+function Tractor() {
+  const tractor = useRef();
   const wheels = useRef([]);
 
   useFrame((state, delta) => {
-    if (!car.current) return;
-    car.current.rotation.y += delta * 0.16;
+    if (!tractor.current) return;
+    tractor.current.rotation.y += delta * 0.16;
     const targetTilt = state.pointer.y * 0.04;
-    car.current.rotation.x += (targetTilt - car.current.rotation.x) * 0.04;
-    for (const w of wheels.current) w.rotation.x += delta * 0.9;
+    tractor.current.rotation.x += (targetTilt - tractor.current.rotation.x) * 0.04;
+    for (const w of wheels.current) w.rotation.x += delta * 0.5;
   });
 
   return (
-    <group ref={car} rotation-y={-0.85}>
-      {/* днище и диффузор — чёрные */}
-      <mesh position={[0, 0.14, -0.1]}>
-        <boxGeometry args={[1.16, 0.06, 3.7]} />
-        <Black />
-      </mesh>
-      <mesh position={[0, 0.22, -2.05]} rotation-x={0.35}>
-        <boxGeometry args={[0.95, 0.05, 0.6]} />
+    <group ref={tractor} rotation-y={-0.85}>
+      {/* рама */}
+      <mesh position={[0, 0.55, 0.2]}>
+        <boxGeometry args={[0.5, 0.22, 2.9]} />
         <Black />
       </mesh>
 
-      {/* монокок: красный верх, чёрные боковые понтоны снизу */}
-      <mesh position={[0, 0.46, 0.25]}>
-        <boxGeometry args={[0.58, 0.34, 2.1]} />
+      {/* капот */}
+      <mesh position={[0, 1.02, 0.85]}>
+        <boxGeometry args={[0.6, 0.52, 1.6]} />
         <Rosso />
       </mesh>
-      <mesh position={[0, 0.26, 0.2]}>
-        <boxGeometry args={[0.72, 0.18, 2.3]} />
-        <Black />
-      </mesh>
-
-      {/* нос: красный, кончик чёрный */}
-      <mesh position={[0, 0.44, 1.85]}>
-        <boxGeometry args={[0.32, 0.22, 1.3]} />
+      <mesh position={[0, 1.3, 0.85]}>
+        <boxGeometry args={[0.44, 0.06, 1.5]} />
         <Rosso />
       </mesh>
-      <mesh position={[0, 0.4, 2.8]} rotation-x={Math.PI / 2}>
-        <coneGeometry args={[0.14, 0.7, 4]} />
-        <Black />
-      </mesh>
-
-      {/* переднее антикрыло: три чёрных элемента + красные законцовки */}
-      <mesh position={[0, 0.14, 2.72]}>
-        <boxGeometry args={[1.72, 0.035, 0.6]} />
-        <Black />
-      </mesh>
-      <mesh position={[0, 0.21, 2.8]}>
-        <boxGeometry args={[1.6, 0.03, 0.4]} />
-        <Black />
-      </mesh>
-      <mesh position={[0, 0.27, 2.87]}>
-        <boxGeometry args={[1.44, 0.025, 0.26]} />
-        <Rosso />
-      </mesh>
-      {[-0.88, 0.88].map((x) => (
-        <mesh key={x} position={[x, 0.25, 2.72]}>
-          <boxGeometry args={[0.04, 0.3, 0.6]} />
-          <Rosso />
+      {/* жёлтая полоса по борту капота */}
+      {[-0.305, 0.305].map((x) => (
+        <mesh key={x} position={[x, 1.05, 0.85]}>
+          <boxGeometry args={[0.01, 0.07, 1.55]} />
+          <meshStandardMaterial {...paint.giallo} />
         </mesh>
       ))}
 
-      {/* кокпит */}
-      <mesh position={[0, 0.64, 0.45]}>
-        <boxGeometry args={[0.4, 0.1, 0.75]} />
-        <meshStandardMaterial color="#050507" roughness={0.6} metalness={0.2} />
+      {/* решётка и фары */}
+      <mesh position={[0, 1.0, 1.68]}>
+        <boxGeometry args={[0.54, 0.46, 0.08]} />
+        <meshStandardMaterial color="#050507" roughness={0.7} />
       </mesh>
-      {/* halo — низкое кольцо над кокпитом с передней стойкой */}
-      <mesh position={[0, 0.75, 0.5]} rotation-x={-Math.PI / 2 + 0.07}>
-        <torusGeometry args={[0.24, 0.028, 10, 28]} />
+      {[-0.16, 0.16].map((x) => (
+        <mesh key={x} position={[x, 1.16, 1.71]}>
+          <boxGeometry args={[0.12, 0.08, 0.04]} />
+          <meshStandardMaterial {...paint.giallo} emissive="#8a6a00" emissiveIntensity={0.6} />
+        </mesh>
+      ))}
+
+      {/* выхлопная труба с колпаком */}
+      <mesh position={[0.2, 1.75, 1.2]}>
+        <cylinderGeometry args={[0.05, 0.05, 0.85, 12]} />
         <Black />
       </mesh>
-      <mesh position={[0, 0.66, 0.78]} rotation-x={0.35}>
-        <boxGeometry args={[0.045, 0.22, 0.045]} />
+      <mesh position={[0.2, 2.18, 1.2]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.06, 12]} />
         <Black />
       </mesh>
 
-      {/* понтоны: красный верх, чёрный низ, тёмный воздухозаборник */}
-      {[-0.55, 0.55].map((x) => (
+      {/* приборная консоль и руль */}
+      <mesh position={[0, 1.28, 0.0]}>
+        <boxGeometry args={[0.5, 0.34, 0.24]} />
+        <Rosso />
+      </mesh>
+      <mesh position={[0, 1.52, -0.08]} rotation-x={-0.95}>
+        <torusGeometry args={[0.17, 0.025, 10, 24]} />
+        <Black />
+      </mesh>
+      <mesh position={[0, 1.45, -0.03]} rotation-x={-0.95}>
+        <cylinderGeometry args={[0.02, 0.02, 0.22, 8]} />
+        <Black />
+      </mesh>
+
+      {/* сиденье */}
+      <mesh position={[0, 1.02, -0.62]}>
+        <boxGeometry args={[0.44, 0.12, 0.42]} />
+        <Black />
+      </mesh>
+      <mesh position={[0, 1.32, -0.82]}>
+        <boxGeometry args={[0.44, 0.5, 0.1]} />
+        <Black />
+      </mesh>
+
+      {/* каркас кабины и крыша */}
+      {[
+        [-0.42, 0.18],
+        [0.42, 0.18],
+        [-0.42, -1.0],
+        [0.42, -1.0],
+      ].map(([x, z]) => (
+        <mesh key={`${x}-${z}`} position={[x, 1.66, z]}>
+          <boxGeometry args={[0.07, 0.95, 0.07]} />
+          <Black />
+        </mesh>
+      ))}
+      <mesh position={[0, 2.16, -0.41]}>
+        <boxGeometry args={[1.02, 0.09, 1.42]} />
+        <Rosso />
+      </mesh>
+      {/* маячок на крыше */}
+      <mesh position={[0, 2.26, -0.41]}>
+        <cylinderGeometry args={[0.07, 0.09, 0.12, 12]} />
+        <meshStandardMaterial {...paint.giallo} emissive="#8a6a00" emissiveIntensity={0.8} />
+      </mesh>
+
+      {/* крылья над задними колёсами */}
+      {[-0.66, 0.66].map((x) => (
         <group key={x}>
-          <mesh position={[x, 0.47, -0.55]}>
-            <boxGeometry args={[0.42, 0.22, 1.6]} />
+          <mesh position={[x, 1.34, -0.7]}>
+            <boxGeometry args={[0.3, 0.07, 1.25]} />
             <Rosso />
           </mesh>
-          <mesh position={[x, 0.3, -0.55]}>
-            <boxGeometry args={[0.46, 0.16, 1.7]} />
-            <Black />
-          </mesh>
-          <mesh position={[x, 0.46, 0.28]}>
-            <boxGeometry args={[0.34, 0.2, 0.06]} />
-            <meshStandardMaterial color="#050507" roughness={0.7} />
+          <mesh position={[x + (x > 0 ? 0.13 : -0.13), 1.1, -0.7]}>
+            <boxGeometry args={[0.04, 0.42, 1.25]} />
+            <Rosso />
           </mesh>
         </group>
       ))}
 
-      {/* гребень мотора, воздухозаборник и акулий плавник */}
-      <mesh position={[0, 0.72, -0.75]}>
-        <boxGeometry args={[0.24, 0.42, 1.7]} />
-        <Rosso />
-      </mesh>
-      <mesh position={[0, 0.95, 0.05]}>
-        <boxGeometry args={[0.28, 0.2, 0.4]} />
+      {/* передний противовес и фаркоп */}
+      <mesh position={[0, 0.52, 1.92]}>
+        <boxGeometry args={[0.42, 0.3, 0.22]} />
         <Black />
       </mesh>
-      <mesh position={[0, 0.98, -1.25]}>
-        <boxGeometry args={[0.03, 0.34, 0.9]} />
-        <Rosso />
-      </mesh>
-      <mesh position={[0, 1.09, 0.05]}>
-        <boxGeometry args={[0.24, 0.06, 0.12]} />
-        <meshStandardMaterial {...paint.giallo} />
+      <mesh position={[0, 0.5, -1.42]}>
+        <boxGeometry args={[0.16, 0.12, 0.32]} />
+        <Black />
       </mesh>
 
-      {/* зеркала */}
-      {[-0.48, 0.48].map((x) => (
-        <mesh key={x} position={[x, 0.7, 0.9]}>
-          <boxGeometry args={[0.12, 0.06, 0.04]} />
-          <Black />
-        </mesh>
-      ))}
-
-      {/* заднее антикрыло: чёрное с красной кромкой */}
-      <mesh position={[0, 0.98, -2.28]}>
-        <boxGeometry args={[1.02, 0.04, 0.48]} />
-        <Black />
-      </mesh>
-      <mesh position={[0, 1.0, -2.05]}>
-        <boxGeometry args={[1.02, 0.015, 0.05]} />
-        <Rosso />
-      </mesh>
-      <mesh position={[0, 1.08, -2.4]}>
-        <boxGeometry args={[1.02, 0.035, 0.3]} />
-        <Black />
-      </mesh>
-      {[-0.53, 0.53].map((x) => (
-        <mesh key={x} position={[x, 0.86, -2.3]}>
-          <boxGeometry args={[0.035, 0.56, 0.64]} />
-          <Black />
-        </mesh>
-      ))}
-      {/* нижнее «пляжное» крыло */}
-      <mesh position={[0, 0.55, -2.32]}>
-        <boxGeometry args={[0.9, 0.03, 0.3]} />
-        <Black />
-      </mesh>
-      <mesh position={[0, 0.7, -2.15]}>
-        <boxGeometry args={[0.06, 0.32, 0.06]} />
-        <Carbon />
-      </mesh>
-
-      {/* колёса: задние шире, и рычаги подвески */}
-      <Wheel position={[-0.8, 0.36, 1.55]} width={0.3} spinRef={wheels} />
-      <Wheel position={[0.8, 0.36, 1.55]} width={0.3} spinRef={wheels} />
-      <Wheel position={[-0.82, 0.36, -1.62]} width={0.4} spinRef={wheels} />
-      <Wheel position={[0.82, 0.36, -1.62]} width={0.4} spinRef={wheels} />
-      <Arm from={[0.28, 0.42, 1.4]} to={[0.74, 0.4, 1.55]} />
-      <Arm from={[-0.28, 0.42, 1.4]} to={[-0.74, 0.4, 1.55]} />
-      <Arm from={[0.28, 0.42, -1.48]} to={[-0.76, 0.4, -1.62]} />
-      <Arm from={[-0.28, 0.42, -1.48]} to={[0.76, 0.4, -1.62]} />
-      <Arm from={[0.28, 0.32, 1.42]} to={[0.74, 0.32, 1.57]} />
-      <Arm from={[-0.28, 0.32, 1.42]} to={[-0.74, 0.32, 1.57]} />
+      {/* колёса: огромные задние, маленькие передние */}
+      <Wheel position={[-0.62, 0.66, -0.7]} radius={0.66} width={0.4} spinRef={wheels} />
+      <Wheel position={[0.62, 0.66, -0.7]} radius={0.66} width={0.4} spinRef={wheels} />
+      <Wheel position={[-0.5, 0.36, 1.3]} radius={0.36} width={0.26} spinRef={wheels} />
+      <Wheel position={[0.5, 0.36, 1.3]} radius={0.36} width={0.26} spinRef={wheels} />
     </group>
   );
 }
@@ -238,14 +203,14 @@ export default function Hero3D() {
   return (
     <Canvas
       dpr={[1, 1.75]}
-      camera={{ position: [7.0, 1.7, 6.7], fov: 25 }}
+      camera={{ position: [7.0, 2.1, 6.7], fov: 26 }}
       gl={{ antialias: true, alpha: true }}
-      onCreated={({ camera }) => camera.lookAt(0, 0.4, 0)}
+      onCreated={({ camera }) => camera.lookAt(0, 0.75, 0)}
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
       eventSource={typeof document !== "undefined" ? document.body : undefined}
     >
       <group position={[0.45, 0, 0]}>
-        <F1Car />
+        <Tractor />
         {/* зеркальный студийный пол: большой и тёмный, чтобы край не попадал в кадр */}
         <mesh rotation-x={-Math.PI / 2} position-y={0.005}>
           <circleGeometry args={[22, 48]} />
@@ -262,7 +227,7 @@ export default function Hero3D() {
             metalness={0.25}
           />
         </mesh>
-        <ContactShadows position={[0, 0.01, 0]} opacity={0.7} scale={9} blur={2.2} far={2.2} />
+        <ContactShadows position={[0, 0.01, 0]} opacity={0.7} scale={10} blur={2.2} far={2.6} />
       </group>
 
       {/* студийный свет из локальных панелей — без сетевых HDRI */}
