@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "../ui";
 import ShareButton from "./ShareButton";
+import DownloadCardButton from "./DownloadCardButton";
 
 /* Пит-стоп: четыре колеса по очереди. Маркер бегает по шкале — попади
    в зелёную зону по центру. Чем точнее попадание, тем быстрее «открутилась
@@ -195,7 +196,17 @@ export default function PitStop() {
           </p>
         )}
         {best != null && (
-          <ShareButton text={`Мой пит-стоп: ${best.toFixed(2)} с 🔧`} className="mt-4" />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <ShareButton text={`Мой пит-стоп: ${best.toFixed(2)} с 🔧`} />
+            <DownloadCardButton
+              card={{
+                label: "Пит-стоп челлендж",
+                value: best.toFixed(2),
+                unit: "с",
+                sub: best < 1.82 ? "Быстрее рекорда Red Bull!" : "Личный рекорд",
+              }}
+            />
+          </div>
         )}
         {records.length === 0 ? (
           <p className="mt-6 text-sm text-dim">Пока пусто. Рекорды сохраняются в этом браузере.</p>

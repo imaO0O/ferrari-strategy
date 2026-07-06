@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "../ui";
 import ShareButton from "./ShareButton";
+import DownloadCardButton from "./DownloadCardButton";
 
 /* Реакция на старт: пять огней зажигаются по одному, гаснут после случайной
    паузы — жми как можно быстрее. Клик до того, как огни погасли, — фальстарт. */
@@ -195,7 +196,17 @@ export default function Reaction() {
           </p>
         )}
         {best != null && (
-          <ShareButton text={`Моя реакция на старт: ${best} мс 🚦`} className="mt-4" />
+          <div className="mt-4 flex flex-wrap gap-2">
+            <ShareButton text={`Моя реакция на старт: ${best} мс 🚦`} />
+            <DownloadCardButton
+              card={{
+                label: "Реакция на старт",
+                value: best,
+                unit: "мс",
+                sub: best < 200 ? "Быстрее пилота Ф1!" : "Личный рекорд",
+              }}
+            />
+          </div>
         )}
         {records.length === 0 ? (
           <p className="mt-6 text-sm text-dim">Пока пусто. Рекорды сохраняются в этом браузере.</p>

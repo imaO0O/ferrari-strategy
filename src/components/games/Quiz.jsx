@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Reveal, EASE } from "../ui";
 import ShareButton from "./ShareButton";
+import DownloadCardButton from "./DownloadCardButton";
 import { QUIZ } from "../../data/quiz";
 
 const BEST_KEY = "fs-quiz-best";
@@ -81,6 +82,14 @@ export default function Quiz() {
             Пройти ещё раз
           </button>
           <ShareButton text={`Викторина о Ferrari: ${score}/${QUIZ.length} 🏎️`} className="py-3" />
+          <DownloadCardButton
+            className="py-3"
+            card={{
+              label: "Викторина о Ferrari",
+              value: `${score}/${QUIZ.length}`,
+              sub: verdict(score, QUIZ.length).replace(/ ?[🏆😉]+$/u, ""),
+            }}
+          />
         </div>
       </Reveal>
     );
