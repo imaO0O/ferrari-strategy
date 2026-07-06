@@ -53,8 +53,17 @@ src/
   data/         heritage.js — таймлайн истории Ferrari
 ```
 
-## Деплой (бесплатно)
+## Деплой на Vercel (бесплатно)
 
-Проект статический — подходит [Vercel](https://vercel.com) или GitHub Pages:
-импортируй репозиторий в Vercel, фреймворк определится автоматически
-(`vite`), команда сборки `npm run build`, папка `dist`.
+1. Зайди на [vercel.com](https://vercel.com) → **Sign Up** → **Continue with GitHub**.
+2. **Add New… → Project** → в списке репозиториев выбери `ferrari-strategy` → **Import**.
+   Если списка нет — нажми **Install GitHub App** и дай Vercel доступ к репозиторию.
+3. Настройки не трогай: Vercel сам определит Vite (`npm run build`, папка `dist`).
+   Файл `vercel.json` в репозитории уже настраивает SPA-роутинг (прямые ссылки
+   вида `/telemetry` открываются корректно).
+4. Нажми **Deploy** — через минуту сайт живёт на `ferrari-strategy-….vercel.app`.
+5. Автодеплой включён по умолчанию: каждый `git push` в `main` обновляет сайт.
+
+Имя домена можно поменять: **Settings → Domains** в проекте Vercel.
+Все API (Jolpica, OpenF1, Wikimedia Commons) бесплатные и без ключей —
+дополнительных переменных окружения не нужно.
