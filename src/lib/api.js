@@ -38,6 +38,10 @@ export const api = {
   qualifyingResults: (round) => getJSON(`/current/${round}/qualifying.json?limit=30`),
   lastRaceResults: () => getJSON("/current/last/results.json?limit=30"),
   driverResults: (driverId) => getJSON(`/current/drivers/${driverId}/results.json?limit=100`),
+  constructorResults: (constructorId) =>
+    getJSON(`/current/constructors/${constructorId}/results.json?limit=100`),
+  constructorSprints: (constructorId) =>
+    getJSON(`/current/constructors/${constructorId}/sprint.json?limit=100`),
 };
 
 // The last Ferrari constructors' title was clinched at the 2008 Brazilian GP.

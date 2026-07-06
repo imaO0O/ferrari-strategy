@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import PageWrap from "../components/PageWrap";
 import Magnetic from "../components/Magnetic";
 import Confetti from "../components/Confetti";
+import SeasonChart from "../components/SeasonChart";
 import {
   Reveal,
   ImageReveal,
@@ -73,10 +74,10 @@ function deriveSeason({ cs, ds, sched, fr, allWins }) {
   }
 
   const now = Date.now();
-  const nextRace =
-    (sched.RaceTable.Races ?? []).find(
-      (r) => new Date(`${r.date}T${r.time ?? "12:00:00Z"}`).getTime() > now,
-    ) ?? null;
+  const allRaces = sched.RaceTable.Races ?? [];
+  const future = allRaces.filter(
+    (r) => new Date(`${r.date}T${r.time ?? "12:00:00Z"}`).getTime() > now,
+  );
 
   return {
     team,
@@ -85,9 +86,13 @@ function deriveSeason({ cs, ds, sched, fr, allWins }) {
     byDriver,
     podiums,
     lastRaces: races.slice(-5).reverse(),
-    nextRace,
+    nextRace: future[0] ?? null,
     seasonLabel: fr.RaceTable.season,
     allTimeWins: +allWins.total || null,
+    topTeams: csList.slice(0, 3),
+    leaderPoints: leader ? +leader.points : null,
+    remainingRaces: future.length,
+    remainingSprints: future.filter((r) => r.Sprint).length,
   };
 }
 
@@ -219,6 +224,50 @@ export default function Scuderia() {
     };
   }, [state]);
 
+  // график сезона: Ferrari против двух ближайших соперников
+  const [chart, setChart] = useState(null);
+  useEffect(() => {
+    if (state.status !== "ready" || !state.topTeams?.length) return;
+    let alive = true;
+    const others = state.topTeams
+      .map((t) => t.Constructor.constructorId)
+      .filter((id) => id !== FERRARI_ID)
+      .slice(0, 2);
+    const ids = [FERRARI_ID, ...others];
+    Promise.all(
+      ids.map(async (id) => {
+        const [res, spr] = await Promise.all([
+          api.constructorResults(id),
+          api.constructorSprints(id).catch(() => null),
+        ]);
+        const byRound = {};
+        for (const race of res.RaceTable.Races ?? []) {
+          byRound[+race.round] =
+            (byRound[+race.round] ?? 0) +
+            (race.Results ?? []).reduce((s, r) => s + +r.points, 0);
+        }
+        for (const race of spr?.RaceTable?.Races ?? []) {
+          byRound[+race.round] =
+            (byRound[+race.round] ?? 0) +
+            (race.SprintResults ?? []).reduce((s, r) => s + +r.points, 0);
+        }
+        const rounds = Object.keys(byRound)
+          .map(Number)
+          .sort((a, b) => a - b);
+        let acc = 0;
+        const points = rounds.map((r) => (acc += byRound[r]));
+        const name =
+          state.topTeams.find((t) => t.Constructor.constructorId === id)?.Constructor.name ?? id;
+        return { id, name, rounds, points };
+      }),
+    )
+      .then((series) => alive && setChart(series.filter((s) => s.rounds.length)))
+      .catch(() => alive && setChart([]));
+    return () => {
+      alive = false;
+    };
+  }, [state]);
+
   // салют, если Ferrari выиграла последнюю гонку (раз за сессию на гонку)
   const [confetti, setConfetti] = useState(false);
   useEffect(() => {
@@ -235,8 +284,27 @@ export default function Scuderia() {
     setConfetti(true);
   }, [state]);
 
-  const { team, gapLabel, drivers, byDriver, podiums, lastRaces, nextRace, seasonLabel, allTimeWins } =
-    state.status === "ready" ? state : {};
+  const {
+    team,
+    gapLabel,
+    drivers,
+    byDriver,
+    podiums,
+    lastRaces,
+    nextRace,
+    seasonLabel,
+    allTimeWins,
+    leaderPoints,
+    remainingRaces,
+    remainingSprints,
+  } = state.status === "ready" ? state : {};
+
+  const pointsLeft =
+    state.status === "ready" ? 43 * remainingRaces + 15 * remainingSprints : null;
+  const titleGap =
+    state.status === "ready" && team && leaderPoints != null
+      ? Math.max(0, leaderPoints - +team.points)
+      : null;
 
   return (
     <PageWrap>
@@ -384,6 +452,53 @@ export default function Scuderia() {
           </Reveal>
         </div>
       </section>
+
+      {/* ПОГОНЯ ЗА ТИТУЛОМ */}
+      {state.status === "ready" && team && (
+        <section className="mx-auto max-w-7xl px-5 py-20 md:py-28">
+          <SectionTitle kicker="CACCIA AL TITOLO" title="Погоня за титулом" className="mb-4" />
+          <p className="mb-10 max-w-2xl text-dim">
+            Накопление очков в Кубке конструкторов по этапам сезона: Ferrari против двух
+            ближайших соперников. Учтены гонки и спринты.
+          </p>
+
+          {chart == null && <div className="h-72 animate-pulse rounded-xl bg-panel" />}
+          {chart?.length > 0 && (
+            <Reveal className="rounded-xl border border-line bg-panel p-4 md:p-8">
+              <SeasonChart series={chart} />
+            </Reveal>
+          )}
+
+          <Reveal className="mt-8 grid gap-8 rounded-xl border border-line bg-panel p-8 md:grid-cols-3">
+            <div className="border-l-2 border-rosso/50 pl-4">
+              <Counter value={pointsLeft} className="font-digits text-5xl font-bold" />
+              <p className="mt-2 text-[9px] font-bold tracking-[0.35em] text-dim">
+                ОЧКОВ ЕЩЁ В ИГРЕ · {remainingRaces} ГОНОК, {remainingSprints} СПРИНТОВ
+              </p>
+            </div>
+            <div className="border-l-2 border-rosso/50 pl-4">
+              <Counter
+                value={titleGap}
+                className={`font-digits text-5xl font-bold ${titleGap === 0 ? "text-giallo" : ""}`}
+              />
+              <p className="mt-2 text-[9px] font-bold tracking-[0.35em] text-dim">
+                {titleGap === 0 ? "ЛИДИРУЕМ В КУБКЕ КОНСТРУКТОРОВ" : "ОЧКОВ ДО ПЕРВОГО МЕСТА"}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <p className="text-sm leading-relaxed text-dim">
+                {titleGap === 0
+                  ? "Ferrari во главе чемпионата — теперь главное не отдать своё. Forza!"
+                  : titleGap > pointsLeft
+                    ? "Математически титул в этом сезоне уже недосягаем. Но гонки для того и существуют, чтобы драться до последнего круга."
+                    : remainingRaces > 0
+                      ? `Титул жив: нужно отыгрывать в среднем ${(titleGap / remainingRaces).toFixed(1)} очка за уик-энд.`
+                      : "Сезон завершён."}
+              </p>
+            </div>
+          </Reveal>
+        </section>
+      )}
 
       {/* СЛЕДУЮЩАЯ ГОНКА */}
       {state.status !== "error" && (
