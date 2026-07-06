@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import Lenis from "lenis";
 import Navbar from "./components/Navbar";
+import WeekendStrip from "./components/WeekendStrip";
 import Footer from "./components/Footer";
 import StartLights from "./components/StartLights";
 import CustomCursor from "./components/CustomCursor";
@@ -46,6 +47,7 @@ export default function App() {
       {/* лёгкое «киношное» зерно поверх всего */}
       <div className="grain pointer-events-none fixed inset-0 z-[85] opacity-[0.05]" />
       <Navbar />
+      <WeekendStrip />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Scuderia />} />

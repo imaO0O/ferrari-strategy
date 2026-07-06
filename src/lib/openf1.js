@@ -30,6 +30,8 @@ async function getJSON(path) {
 export const of1 = {
   // все гонки года
   raceSessions: (year) => getJSON(`/sessions?year=${year}&session_name=Race`),
+  // все сессии года (практики, квалификации, спринты, гонки)
+  allSessions: (year) => getJSON(`/sessions?year=${year}`),
   // участники сессии: имя, аббревиатура, номер, цвет команды
   drivers: (sessionKey) => getJSON(`/drivers?session_key=${sessionKey}`),
   // изменения позиций по ходу сессии (компактно: только моменты смены позиции)
@@ -37,6 +39,12 @@ export const of1 = {
   // радиопереговоры пилота в сессии (mp3-ссылки)
   teamRadio: (sessionKey, driverNumber) =>
     getJSON(`/team_radio?session_key=${sessionKey}&driver_number=${driverNumber}`),
+  // позиции БЕЗ кэша — для live-режима во время сессии
+  positionsFresh: async (sessionKey) => {
+    const res = await fetch(`${BASE}/position?session_key=${sessionKey}`);
+    if (!res.ok) throw new Error(`OpenF1 ${res.status} (live)`);
+    return res.json();
+  },
   // круги пилота: старт каждого круга и его длительность
   laps: (sessionKey, driverNumber) =>
     getJSON(`/laps?session_key=${sessionKey}&driver_number=${driverNumber}`),

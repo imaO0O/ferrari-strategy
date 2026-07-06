@@ -5,7 +5,49 @@ import OnThisDay from "../components/OnThisDay";
 import { Reveal, KineticTitle, SectionTitle, Marquee } from "../components/ui";
 import { Countdown, PosChip, raceDate } from "../components/racing";
 import { api } from "../lib/api";
-import { gpRu, countryRu, driverRu, formatDateRu, teamColor } from "../lib/i18n";
+import { useWeekend, sessionRu, fmtSessionTime } from "../lib/useWeekend";
+import { gpRu, countryRu, driverRu, formatDateRu, teamColor, circuitGpRu } from "../lib/i18n";
+
+/* Расписание сессий текущего гоночного уик-энда (появляется только в дни ГП) */
+function WeekendSchedule() {
+  const weekend = useWeekend();
+  if (!weekend) return null;
+  const now = Date.now();
+  return (
+    <Reveal className="mb-8 rounded-xl border border-rosso/40 bg-rosso/[0.04] p-6 md:p-8">
+      <p className="flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-rosso">
+        <span className="inline-block h-px w-10 bg-rosso" />
+        ГОНОЧНЫЙ УИК-ЭНД · {circuitGpRu(weekend.circuit).toUpperCase()}
+      </p>
+      <div className="mt-4 grid gap-2">
+        {weekend.sessions.map((s) => {
+          const started = Date.parse(s.date_start) <= now;
+          const ended = Date.parse(s.date_end) < now;
+          const live = started && !ended;
+          return (
+            <div
+              key={s.session_key}
+              className={`flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md px-4 py-2.5 ${
+                live ? "bg-rosso/15" : ended ? "bg-panel2/40 opacity-50" : "bg-panel2/60"
+              }`}
+            >
+              <span className="min-w-44 font-bold uppercase tracking-wide">
+                {sessionRu(s.session_name)}
+              </span>
+              <span className="flex-1 text-sm text-dim">
+                {fmtSessionTime(s.date_start)} · твоё местное время
+              </span>
+              {live && (
+                <span className="animate-pulse font-digits text-xs font-bold text-rosso">● LIVE</span>
+              )}
+              {ended && <span className="font-digits text-[10px] text-dim">ЗАВЕРШЕНА</span>}
+            </div>
+          );
+        })}
+      </div>
+    </Reveal>
+  );
+}
 
 function StandingsCard({ title, rows, linkTab }) {
   return (
@@ -115,6 +157,7 @@ export default function Dashboard() {
         <>
           {/* СЛЕДУЮЩАЯ ГОНКА */}
           <section className="mx-auto max-w-7xl px-5 py-16">
+            <WeekendSchedule />
             {nextRace ? (
               <Reveal className="rounded-xl border border-line bg-panel p-8 md:p-10">
                 <div className="flex flex-wrap items-end justify-between gap-8">
@@ -217,7 +260,7 @@ export default function Dashboard() {
               {[
                 { to: "/", label: "Скудерия", sub: "Всё о Ferrari" },
                 { to: "/telemetry", label: "Телеметрия", sub: "Реплей гонки и радио" },
-                { to: "/games", label: "Игры", sub: "Реакция · Пит-стоп · Викторина" },
+                { to: "/games", label: "Игры", sub: "Реакция · Пит-стоп · Викторина · Трассы" },
               ].map(({ to, label, sub }, i) => (
                 <Reveal key={to} delay={i * 0.08}>
                   <Link
