@@ -4,9 +4,10 @@ import PageWrap from "../components/PageWrap";
 import TrackMap from "../components/TrackMap";
 import { Reveal, KineticTitle, Marquee, SectionTitle, EASE } from "../components/ui";
 import { of1 } from "../lib/openf1";
+import { circuitGpRu } from "../lib/i18n";
 
-/* Реплей гонки в браузере на данных OpenF1: анимированная башня позиций
-   с перемоткой и выбором скорости + настоящие радиопереговоры Ferrari. */
+/* Телеметрия: браузерный реплей любой прошедшей гонки сезона на данных
+   OpenF1 — башня позиций со счётчиком кругов, карта трассы и радио Ferrari. */
 
 const SPEEDS = [60, 120, 300]; // секунд гонки за секунду реального времени
 
@@ -18,66 +19,14 @@ const fmtClock = (ms) => {
   return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
-function useReplayData() {
-  const [state, setState] = useState({ status: "loading" });
+const sessionDateRu = (session) =>
+  new Date(session.date_start).toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const year = new Date().getFullYear();
-        let sessions = await of1.raceSessions(year);
-        let past = sessions.filter((s) => new Date(s.date_start).getTime() < Date.now());
-        if (!past.length) {
-          sessions = await of1.raceSessions(year - 1);
-          past = sessions.filter((s) => new Date(s.date_start).getTime() < Date.now());
-        }
-        const session = past.at(-1);
-        if (!session) throw new Error("Нет доступных гонок");
-
-        const [driverList, positionRows] = await Promise.all([
-          of1.drivers(session.session_key),
-          of1.positions(session.session_key),
-        ]);
-        if (!alive) return;
-
-        const drivers = {};
-        for (const d of driverList) {
-          drivers[d.driver_number] = {
-            number: d.driver_number,
-            acronym: d.name_acronym,
-            name: d.full_name,
-            color: d.team_colour ? `#${d.team_colour}` : "#8a8a93",
-            team: d.team_name,
-          };
-        }
-
-        const events = positionRows
-          .map((r) => ({ t: Date.parse(r.date), n: r.driver_number, p: r.position }))
-          .sort((a, b) => a.t - b.t);
-        if (!events.length) throw new Error("Нет данных о позициях");
-
-        setState({
-          status: "ready",
-          session,
-          drivers,
-          events,
-          t0: events[0].t,
-          duration: events.at(-1).t - events[0].t,
-        });
-      } catch (e) {
-        if (alive) setState({ status: "error", message: e.message });
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  return state;
-}
-
-function ReplayTower({ drivers, events, t0, duration }) {
+function ReplayTower({ drivers, events, t0, duration, lapMarks }) {
   const [clock, setClock] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(SPEEDS[1]);
@@ -104,7 +53,7 @@ function ReplayTower({ drivers, events, t0, duration }) {
     return () => cancelAnimationFrame(raf.current);
   }, [playing, speed, duration]);
 
-  // позиции на текущий момент реплея
+  // расстановка на текущий момент реплея
   const order = useMemo(() => {
     const cutoff = t0 + clock;
     const pos = {};
@@ -118,31 +67,40 @@ function ReplayTower({ drivers, events, t0, duration }) {
       .sort((a, b) => a.p - b.p);
   }, [clock, events, t0, drivers]);
 
+  // текущий круг — по времени старта кругов пилота Ferrari
+  const currentLap = useMemo(() => {
+    if (!lapMarks?.length) return null;
+    const cutoff = t0 + clock;
+    let lap = lapMarks[0].n;
+    for (const m of lapMarks) {
+      if (m.t > cutoff) break;
+      lap = m.n;
+    }
+    return lap;
+  }, [clock, lapMarks, t0]);
+
   return (
     <div className="grid gap-8 lg:grid-cols-[22rem_1fr]">
       {/* управление */}
       <Reveal className="h-fit rounded-xl border border-line bg-panel p-6 lg:sticky lg:top-24">
         <p className="font-digits text-4xl font-bold tabular-nums text-giallo">{fmtClock(clock)}</p>
-        <p className="mt-1 text-[10px] font-bold tracking-[0.35em] text-dim">ВРЕМЯ ГОНКИ</p>
+        <p className="mt-1 text-[10px] font-bold tracking-[0.35em] text-dim">
+          ВРЕМЯ ГОНКИ
+          {currentLap != null && lapMarks?.length ? (
+            <span className="ml-3 text-giallo">КРУГ {currentLap}/{lapMarks.length}</span>
+          ) : null}
+        </p>
 
         <div className="mt-6 flex items-center gap-3">
           <button
-            onClick={() => setPlaying((p) => !p)}
+            onClick={() => {
+              if (clock >= duration) setClock(0);
+              setPlaying((p) => !p);
+            }}
             className="rounded-md bg-rosso px-6 py-3 text-sm font-black uppercase tracking-widest transition-transform hover:scale-105"
           >
             {playing ? "Пауза" : clock >= duration ? "Сначала" : "Пуск"}
           </button>
-          {clock >= duration && (
-            <button
-              onClick={() => {
-                setClock(0);
-                setPlaying(true);
-              }}
-              className="rounded-md border border-line px-4 py-3 text-sm font-black uppercase tracking-widest text-dim transition-colors hover:text-white"
-            >
-              ⟲
-            </button>
-          )}
         </div>
 
         <input
@@ -155,7 +113,9 @@ function ReplayTower({ drivers, events, t0, duration }) {
           aria-label="Перемотка реплея"
         />
 
-        <p className="mt-6 text-[10px] font-bold tracking-[0.35em] text-dim">СКОРОСТЬ</p>
+        <p className="mt-6 text-[10px] font-bold tracking-[0.35em] text-dim">
+          СКОРОСТЬ · ×РЕАЛЬНОГО ВРЕМЕНИ
+        </p>
         <div className="mt-2 flex gap-2">
           {SPEEDS.map((s) => (
             <button
@@ -169,6 +129,11 @@ function ReplayTower({ drivers, events, t0, duration }) {
             </button>
           ))}
         </div>
+
+        <p className="mt-6 text-xs leading-relaxed text-dim">
+          На скорости 120× двухчасовая гонка пролетает за минуту. Перематывай слайдером —
+          расстановка пересчитается мгновенно.
+        </p>
       </Reveal>
 
       {/* башня позиций */}
@@ -237,11 +202,15 @@ function FerrariRadio({ sessionKey, drivers }) {
       <div className="mx-auto max-w-7xl px-5 py-16">
         <SectionTitle kicker="BOX BOX" title="Радио Ferrari" className="mb-4" />
         <p className="mb-10 max-w-2xl text-dim">
-          Настоящие радиопереговоры пилотов Ferrari из этой гонки — прямо из эфира команды
-          (данные OpenF1).
+          Настоящие переговоры пилотов Ferrari с командным мостиком в этой гонке. Нажми
+          play — услышишь то же, что слышал гоночный инженер. Записи публикует OpenF1.
         </p>
         {clips == null && <div className="h-40 animate-pulse rounded-xl bg-panel" />}
-        {clips?.length === 0 && <p className="text-dim">Для этой сессии записей радио нет.</p>}
+        {clips?.length === 0 && (
+          <p className="text-dim">
+            Для этой гонки записей радио пока нет — OpenF1 выкладывает их с задержкой.
+          </p>
+        )}
         {clips?.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2">
             {clips.map((clip, i) => {
@@ -251,6 +220,12 @@ function FerrariRadio({ sessionKey, drivers }) {
                   <div className="flex items-center gap-4 rounded-xl border border-line bg-panel p-4">
                     <span className="rounded-md bg-rosso px-2.5 py-1.5 font-digits text-xs font-bold">
                       {d?.acronym ?? clip.driver_number}
+                    </span>
+                    <span className="font-digits text-[10px] text-dim">
+                      {new Date(clip.date).toLocaleTimeString("ru-RU", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                     <audio controls preload="none" src={clip.recording_url} className="h-10 w-full" />
                   </div>
@@ -265,7 +240,90 @@ function FerrariRadio({ sessionKey, drivers }) {
 }
 
 export default function Telemetry() {
-  const state = useReplayData();
+  const [sessions, setSessions] = useState(null);
+  const [sessionKey, setSessionKey] = useState(null);
+  const [state, setState] = useState({ status: "loading" });
+
+  // список прошедших гонок сезона (или прошлого, если сезон ещё не начался)
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const year = new Date().getFullYear();
+        let list = await of1.raceSessions(year);
+        let past = list.filter((s) => Date.parse(s.date_start) < Date.now());
+        if (!past.length) {
+          list = await of1.raceSessions(year - 1);
+          past = list.filter((s) => Date.parse(s.date_start) < Date.now());
+        }
+        if (!past.length) throw new Error("Нет доступных гонок");
+        if (alive) {
+          setSessions(past);
+          setSessionKey(past.at(-1).session_key);
+        }
+      } catch (e) {
+        if (alive) setState({ status: "error", message: e.message });
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // данные выбранной гонки
+  useEffect(() => {
+    if (!sessionKey || !sessions) return;
+    let alive = true;
+    setState({ status: "loading" });
+    (async () => {
+      try {
+        const session = sessions.find((s) => s.session_key === sessionKey);
+        const [driverList, positionRows] = await Promise.all([
+          of1.drivers(sessionKey),
+          of1.positions(sessionKey),
+        ]);
+
+        const drivers = {};
+        for (const d of driverList) {
+          drivers[d.driver_number] = {
+            number: d.driver_number,
+            acronym: d.name_acronym,
+            name: d.full_name,
+            color: d.team_colour ? `#${d.team_colour}` : "#8a8a93",
+            team: d.team_name,
+          };
+        }
+
+        const events = positionRows
+          .map((r) => ({ t: Date.parse(r.date), n: r.driver_number, p: r.position }))
+          .sort((a, b) => a.t - b.t);
+        if (!events.length) throw new Error("Нет данных о позициях");
+
+        // круги пилота Ferrari — для счётчика «КРУГ N/M»
+        const ferrari = driverList.find((d) => d.team_name === "Ferrari") ?? driverList[0];
+        const lapRows = ferrari
+          ? await of1.laps(sessionKey, ferrari.driver_number).catch(() => [])
+          : [];
+        const lapMarks = lapRows.map((l) => ({ n: l.lap_number, t: Date.parse(l.date_start) }));
+
+        if (!alive) return;
+        setState({
+          status: "ready",
+          session,
+          drivers,
+          events,
+          lapMarks,
+          t0: events[0].t,
+          duration: events.at(-1).t - events[0].t,
+        });
+      } catch (e) {
+        if (alive) setState({ status: "error", message: e.message });
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [sessionKey, sessions]);
 
   return (
     <PageWrap>
@@ -273,22 +331,35 @@ export default function Telemetry() {
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />
-            РЕПЛЕЙ ГОНКИ · ДАННЫЕ OPENF1
+            БРАУЗЕРНЫЙ РЕПЛЕЙ ГОНОК · ДАННЫЕ OPENF1
           </p>
         </Reveal>
         <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
           <KineticTitle text="ТЕЛЕМЕТРИЯ" />
         </h1>
-        {state.status === "ready" && (
+
+        {sessions && (
           <Reveal delay={0.3}>
-            <p className="mt-4 text-lg text-dim">
-              {state.session.circuit_short_name}, {state.session.country_name} ·{" "}
-              {new Date(state.session.date_start).toLocaleDateString("ru-RU", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <label
+                className="text-sm font-bold uppercase tracking-widest text-dim"
+                htmlFor="race-session"
+              >
+                Гонка
+              </label>
+              <select
+                id="race-session"
+                value={sessionKey ?? ""}
+                onChange={(e) => setSessionKey(+e.target.value)}
+                className="rounded-md border border-line bg-panel px-4 py-2.5 font-bold uppercase tracking-wide outline-none transition-colors focus:border-rosso"
+              >
+                {[...sessions].reverse().map((s) => (
+                  <option key={s.session_key} value={s.session_key}>
+                    {circuitGpRu(s.circuit_short_name)} · {sessionDateRu(s)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </Reveal>
         )}
       </section>
@@ -318,18 +389,34 @@ export default function Telemetry() {
           </div>
         )}
         {state.status === "ready" && (
-          <ReplayTower
-            drivers={state.drivers}
-            events={state.events}
-            t0={state.t0}
-            duration={state.duration}
-          />
+          <>
+            <SectionTitle kicker="LA GARA" title="Реплей позиций" className="mb-4" />
+            <p className="mb-10 max-w-2xl text-dim">
+              Как менялась расстановка по ходу{" "}
+              <span className="text-white">
+                {circuitGpRu(state.session.circuit_short_name)}
+              </span>{" "}
+              ({sessionDateRu(state.session)}): обгоны, пит-стопы и сходы — позиция за
+              позицией. Пилоты Ferrari подсвечены красным.
+            </p>
+            <ReplayTower
+              drivers={state.drivers}
+              events={state.events}
+              t0={state.t0}
+              duration={state.duration}
+              lapMarks={state.lapMarks}
+            />
+          </>
         )}
       </section>
 
       {state.status === "ready" && (
         <>
-          <TrackMap session={state.session} drivers={state.drivers} />
+          <TrackMap
+            key={state.session.session_key}
+            session={state.session}
+            drivers={state.drivers}
+          />
           <FerrariRadio sessionKey={state.session.session_key} drivers={state.drivers} />
         </>
       )}

@@ -119,7 +119,41 @@ export const TEAM_COLORS = {
 
 export const teamColor = (constructorId) => TEAM_COLORS[constructorId] ?? "#8a8a93";
 
+// Короткие имена трасс из OpenF1 (circuit_short_name) → русские названия Гран-при.
+const CIRCUIT_GP_RU = {
+  Melbourne: "Гран-при Австралии",
+  Shanghai: "Гран-при Китая",
+  Suzuka: "Гран-при Японии",
+  Sakhir: "Гран-при Бахрейна",
+  Jeddah: "Гран-при Саудовской Аравии",
+  Miami: "Гран-при Майами",
+  Imola: "Гран-при Эмилии-Романьи",
+  Monaco: "Гран-при Монако",
+  "Monte Carlo": "Гран-при Монако",
+  Montreal: "Гран-при Канады",
+  Catalunya: "Гран-при Испании",
+  Barcelona: "Гран-при Барселоны",
+  Madrid: "Гран-при Мадрида",
+  Spielberg: "Гран-при Австрии",
+  Silverstone: "Гран-при Великобритании",
+  "Spa-Francorchamps": "Гран-при Бельгии",
+  Hungaroring: "Гран-при Венгрии",
+  Zandvoort: "Гран-при Нидерландов",
+  Monza: "Гран-при Италии",
+  Baku: "Гран-при Азербайджана",
+  Singapore: "Гран-при Сингапура",
+  Austin: "Гран-при США",
+  "Mexico City": "Гран-при Мехико",
+  Interlagos: "Гран-при Сан-Паулу",
+  "São Paulo": "Гран-при Сан-Паулу",
+  "Las Vegas": "Гран-при Лас-Вегаса",
+  Lusail: "Гран-при Катара",
+  "Yas Marina Circuit": "Гран-при Абу-Даби",
+  "Yas Island": "Гран-при Абу-Даби",
+};
+
 export const gpRu = (name) => GP_RU[name] ?? name;
+export const circuitGpRu = (shortName) => CIRCUIT_GP_RU[shortName] ?? `Гран-при · ${shortName}`;
 export const countryRu = (name) => COUNTRY_RU[name] ?? name;
 export const driverRu = (driver) =>
   DRIVER_RU[driver.driverId] ?? { given: driver.givenName, family: driver.familyName };
