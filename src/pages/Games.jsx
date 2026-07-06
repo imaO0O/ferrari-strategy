@@ -4,11 +4,13 @@ import { Reveal, KineticTitle, Marquee } from "../components/ui";
 import Reaction from "../components/games/Reaction";
 import Quiz from "../components/games/Quiz";
 import PitStop from "../components/games/PitStop";
+import Tracks from "../components/games/Tracks";
 
 const TABS = [
   { id: "reaction", label: "Реакция", sub: "Огни погасли — жми!" },
   { id: "pitstop", label: "Пит-стоп", sub: "Смени 4 колеса" },
   { id: "quiz", label: "Викторина", sub: "20 вопросов о Ferrari" },
+  { id: "tracks", label: "Трассы", sub: "Угадай по контуру" },
 ];
 
 export default function Games() {
@@ -21,7 +23,7 @@ export default function Games() {
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />
-            ТРИ ИСПЫТАНИЯ · РЕКОРДЫ ХРАНЯТСЯ В ТВОЁМ БРАУЗЕРЕ
+            ЧЕТЫРЕ ИСПЫТАНИЯ · РЕКОРДЫ ХРАНЯТСЯ В ТВОЁМ БРАУЗЕРЕ
           </p>
         </Reveal>
         <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
@@ -57,6 +59,7 @@ export default function Games() {
         {tab === "reaction" && <Reaction />}
         {tab === "pitstop" && <PitStop />}
         {tab === "quiz" && <Quiz />}
+        {tab === "tracks" && <Tracks />}
       </section>
     </PageWrap>
   );
