@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PageWrap from "../components/PageWrap";
 import { Reveal, ImageReveal, KineticTitle, Marquee, EASE } from "../components/ui";
 import { commonsFile } from "../lib/images";
 import { LEGENDS } from "../data/legends";
+import { GARAGE } from "../data/garage";
 
 function LegendCard({ legend, index, onOpen }) {
   return (
@@ -117,7 +119,44 @@ function LegendModal({ legend, onClose }) {
   );
 }
 
+function CarCard({ car, index }) {
+  return (
+    <Reveal delay={(index % 3) * 0.07}>
+      <div className="group h-full overflow-hidden rounded-xl border border-line bg-panel transition-colors hover:border-rosso/60">
+        <ImageReveal src={commonsFile(car.file, 800)} alt={car.alt} className="aspect-[4/3]" />
+        <div className="p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-digits text-xs text-dim">{car.years}</p>
+            <p className="font-digits text-xs text-giallo">{car.engine}</p>
+          </div>
+          <h3 className="mt-2 text-2xl font-black uppercase italic leading-none tracking-tight">
+            {car.name}
+          </h3>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {car.stats.map((s) => (
+              <span
+                key={s}
+                className="rounded-md bg-panel2 px-2 py-0.5 font-digits text-[9px] tracking-[0.15em] text-dim"
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-dim">{car.text}</p>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
+const TABS = [
+  { id: "pilots", label: "Пилоты" },
+  { id: "cars", label: "Болиды" },
+];
+
 export default function Legends() {
+  const [params, setParams] = useSearchParams();
+  const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "pilots";
   const [open, setOpen] = useState(null);
   const champions = LEGENDS.filter((l) => l.titles.length > 0).length;
 
@@ -127,7 +166,7 @@ export default function Legends() {
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />
-            {champions} ЧЕМПИОНОВ МИРА · {LEGENDS.length} ДОСЬЕ
+            {champions} ЧЕМПИОНОВ МИРА · {LEGENDS.length} ДОСЬЕ · {GARAGE.length} БОЛИДОВ
           </p>
         </Reveal>
         <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
@@ -135,14 +174,33 @@ export default function Legends() {
         </h1>
         <Reveal delay={0.4}>
           <p className="mt-6 max-w-xl text-lg text-neutral-200">
-            Все чемпионы мира за рулём Ferrari — и пилоты, без которых историю Скудерии
-            не рассказать. Нажми на карточку, чтобы открыть досье.
+            {tab === "pilots"
+              ? "Все чемпионы мира за рулём Ferrari — и пилоты, без которых историю Скудерии не рассказать. Нажми на карточку, чтобы открыть досье."
+              : "Машины, которые сделали Ferrari — Ferrari: от самой первой 125 S до современных гибридов."}
           </p>
         </Reveal>
+
+        <div className="mt-10 flex flex-wrap gap-2">
+          {TABS.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => setParams({ tab: id })}
+              className={`rounded-md px-4 py-2.5 text-sm font-black uppercase tracking-widest transition-colors ${
+                tab === id ? "bg-rosso text-white" : "bg-panel text-dim hover:text-white"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </section>
 
       <Marquee
-        items={["I PILOTI", "✦", "DELLA SCUDERIA", "✦", "FERRARI STRATEGY", "✦"]}
+        items={
+          tab === "pilots"
+            ? ["I PILOTI", "✦", "DELLA SCUDERIA", "✦", "FERRARI STRATEGY", "✦"]
+            : ["LE MACCHINE", "✦", "DELLA SCUDERIA", "✦", "FERRARI STRATEGY", "✦"]
+        }
         speed={24}
         className="rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
         itemClassName="mx-4"
@@ -150,9 +208,11 @@ export default function Legends() {
 
       <section className="mx-auto max-w-7xl px-5 py-14">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {LEGENDS.map((legend, i) => (
-            <LegendCard key={legend.id} legend={legend} index={i} onOpen={setOpen} />
-          ))}
+          {tab === "pilots" &&
+            LEGENDS.map((legend, i) => (
+              <LegendCard key={legend.id} legend={legend} index={i} onOpen={setOpen} />
+            ))}
+          {tab === "cars" && GARAGE.map((car, i) => <CarCard key={car.id} car={car} index={i} />)}
         </div>
       </section>
 

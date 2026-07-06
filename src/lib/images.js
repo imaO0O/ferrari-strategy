@@ -34,6 +34,7 @@ export const IMAGES = [
   { file: "2024-08-25 Motorsport, Formel 1, Großer Preis der Niederlande 2024 STP 3978 by Stepro (cropped2).jpg", label: "Шарль Леклер (портрет, 2024)" },
   { file: "2025 Japan GP - Ferrari - Lewis Hamilton - Fanzone Stage (cropped).jpg", label: "Льюис Хэмилтон (портрет, 2025)" },
   { file: "SF-24 at the Japanese GP.jpg", label: "Ferrari SF-24, Гран-при Японии" },
+  { file: "Ferrari F2002.jpg", label: "Ferrari F2002" },
   { file: "Scuderia Ferrari Pit Stop2.JPG", label: "Пит-стоп Scuderia Ferrari" },
   { file: "1956-08-12 Kristianstad Ferrari 750 0470M Lohmander Kvarnström Bonnier Fangio.jpg", label: "Хуан Мануэль Фанхио, Ferrari (1956)" },
   { file: "Scuderia Ferrari - Monza, 1953 - Enzo Ferrari & Mike Hawthorn.jpg", label: "Энцо Феррари и Майк Хоторн, Монца 1953" },
