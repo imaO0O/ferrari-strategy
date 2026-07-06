@@ -169,6 +169,81 @@ function ReplayTower({ drivers, events, t0, duration, lapMarks }) {
   );
 }
 
+/* Live-режим: во время сессии показываем текущую расстановку,
+   обновляя её раз в 60 секунд (без кэша) */
+function LiveTower({ sessionKey, drivers }) {
+  const [order, setOrder] = useState(null);
+  const [updated, setUpdated] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const rows = await of1.positionsFresh(sessionKey);
+        if (!alive) return;
+        const pos = {};
+        for (const r of rows.sort((a, b) => Date.parse(a.date) - Date.parse(b.date))) {
+          pos[r.driver_number] = r.position;
+        }
+        setOrder(
+          Object.entries(pos)
+            .map(([n, p]) => ({ driver: drivers[n], p }))
+            .filter((r) => r.driver)
+            .sort((a, b) => a.p - b.p),
+        );
+        setUpdated(new Date());
+      } catch {
+        /* пропускаем тик — попробуем через минуту */
+      }
+    };
+    load();
+    const id = setInterval(load, 60_000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [sessionKey, drivers]);
+
+  return (
+    <div>
+      <p className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-widest">
+        <span className="animate-pulse text-rosso">● LIVE</span>
+        <span className="text-dim">
+          обновление раз в 60 с
+          {updated &&
+            ` · последнее: ${updated.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`}
+        </span>
+      </p>
+      {order == null && <div className="h-96 animate-pulse rounded-xl bg-panel" />}
+      <div className="space-y-1.5">
+        {order?.map(({ driver, p }) => (
+          <motion.div
+            key={driver.number}
+            layout
+            transition={{ duration: 0.5, ease: EASE }}
+            className={`flex items-center gap-3 rounded-md border px-4 py-2.5 ${
+              driver.team === "Ferrari" ? "border-rosso/50 bg-rosso/5" : "border-line bg-panel"
+            }`}
+          >
+            <span
+              className={`inline-flex min-w-9 justify-center rounded-md px-2 py-1 font-digits text-xs font-bold ${
+                p <= 3 ? "bg-rosso text-white" : "bg-panel2 text-dim"
+              }`}
+            >
+              P{p}
+            </span>
+            <span className="h-6 w-1 rounded-full" style={{ background: driver.color }} />
+            <span className="font-digits text-sm text-dim">{driver.number}</span>
+            <span className="flex-1 truncate font-bold uppercase tracking-wide">
+              {driver.acronym} <span className="hidden text-dim sm:inline">· {driver.team}</span>
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function FerrariRadio({ sessionKey, drivers }) {
   const [clips, setClips] = useState(null);
 
@@ -353,11 +428,17 @@ export default function Telemetry() {
                 onChange={(e) => setSessionKey(+e.target.value)}
                 className="rounded-md border border-line bg-panel px-4 py-2.5 font-bold uppercase tracking-wide outline-none transition-colors focus:border-rosso"
               >
-                {[...sessions].reverse().map((s) => (
-                  <option key={s.session_key} value={s.session_key}>
-                    {circuitGpRu(s.circuit_short_name)} · {sessionDateRu(s)}
-                  </option>
-                ))}
+                {[...sessions].reverse().map((s) => {
+                  const live =
+                    Date.parse(s.date_start) <= Date.now() &&
+                    Date.now() <= Date.parse(s.date_end);
+                  return (
+                    <option key={s.session_key} value={s.session_key}>
+                      {circuitGpRu(s.circuit_short_name)} · {sessionDateRu(s)}
+                      {live ? " · LIVE" : ""}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </Reveal>
@@ -388,35 +469,55 @@ export default function Telemetry() {
             </button>
           </div>
         )}
-        {state.status === "ready" && (
-          <>
-            <SectionTitle kicker="LA GARA" title="Реплей позиций" className="mb-4" />
-            <p className="mb-10 max-w-2xl text-dim">
-              Как менялась расстановка по ходу{" "}
-              <span className="text-white">
-                {circuitGpRu(state.session.circuit_short_name)}
-              </span>{" "}
-              ({sessionDateRu(state.session)}): обгоны, пит-стопы и сходы — позиция за
-              позицией. Пилоты Ferrari подсвечены красным.
-            </p>
-            <ReplayTower
-              drivers={state.drivers}
-              events={state.events}
-              t0={state.t0}
-              duration={state.duration}
-              lapMarks={state.lapMarks}
-            />
-          </>
-        )}
+        {state.status === "ready" &&
+          (() => {
+            const isLive =
+              Date.parse(state.session.date_start) <= Date.now() &&
+              Date.now() <= Date.parse(state.session.date_end);
+            return isLive ? (
+              <>
+                <SectionTitle kicker="LA GARA" title="Гонка сейчас" className="mb-4" />
+                <p className="mb-10 max-w-2xl text-dim">
+                  <span className="text-white">
+                    {circuitGpRu(state.session.circuit_short_name)}
+                  </span>{" "}
+                  идёт прямо сейчас — ниже живая расстановка. Пилоты Ferrari подсвечены
+                  красным. Forza!
+                </p>
+                <LiveTower sessionKey={state.session.session_key} drivers={state.drivers} />
+              </>
+            ) : (
+              <>
+                <SectionTitle kicker="LA GARA" title="Реплей позиций" className="mb-4" />
+                <p className="mb-10 max-w-2xl text-dim">
+                  Как менялась расстановка по ходу{" "}
+                  <span className="text-white">
+                    {circuitGpRu(state.session.circuit_short_name)}
+                  </span>{" "}
+                  ({sessionDateRu(state.session)}): обгоны, пит-стопы и сходы — позиция за
+                  позицией. Пилоты Ferrari подсвечены красным.
+                </p>
+                <ReplayTower
+                  drivers={state.drivers}
+                  events={state.events}
+                  t0={state.t0}
+                  duration={state.duration}
+                  lapMarks={state.lapMarks}
+                />
+              </>
+            );
+          })()}
       </section>
 
       {state.status === "ready" && (
         <>
-          <TrackMap
-            key={state.session.session_key}
-            session={state.session}
-            drivers={state.drivers}
-          />
+          {Date.now() > Date.parse(state.session.date_end) && (
+            <TrackMap
+              key={state.session.session_key}
+              session={state.session}
+              drivers={state.drivers}
+            />
+          )}
           <FerrariRadio sessionKey={state.session.session_key} drivers={state.drivers} />
         </>
       )}
