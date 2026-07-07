@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ferrari-strategy.vercel.app/sitemap.xml

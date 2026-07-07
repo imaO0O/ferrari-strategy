@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import Lenis from "lenis";
@@ -8,15 +8,27 @@ import Footer from "./components/Footer";
 import StartLights from "./components/StartLights";
 import CustomCursor from "./components/CustomCursor";
 import ScrollProgress from "./components/ScrollProgress";
-import Scuderia from "./pages/Scuderia";
-import Dashboard from "./pages/Dashboard";
-import Races from "./pages/Races";
-import Games from "./pages/Games";
-import Telemetry from "./pages/Telemetry";
-import Legends from "./pages/Legends";
-import Heritage from "./pages/Heritage";
-import Credits from "./pages/Credits";
-import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/ErrorBoundary";
+
+// Каждая страница — отдельный чанк: первый вход грузит только нужное
+const Scuderia = lazy(() => import("./pages/Scuderia"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Races = lazy(() => import("./pages/Races"));
+const Games = lazy(() => import("./pages/Games"));
+const Telemetry = lazy(() => import("./pages/Telemetry"));
+const Legends = lazy(() => import("./pages/Legends"));
+const Heritage = lazy(() => import("./pages/Heritage"));
+const Credits = lazy(() => import("./pages/Credits"));
+const About = lazy(() => import("./pages/About"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+function PageLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-line border-t-rosso" />
+    </div>
+  );
+}
 
 export default function App() {
   const location = useLocation();
@@ -49,20 +61,25 @@ export default function App() {
       <div className="grain pointer-events-none fixed inset-0 z-[85] opacity-[0.05]" />
       <Navbar />
       <WeekendStrip />
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Scuderia />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/races" element={<Races />} />
-          <Route path="/games" element={<Games />} />
-          <Route path="/game" element={<Navigate to="/games" replace />} />
-          <Route path="/telemetry" element={<Telemetry />} />
-          <Route path="/legends" element={<Legends />} />
-          <Route path="/heritage" element={<Heritage />} />
-          <Route path="/credits" element={<Credits />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AnimatePresence>
+      <ErrorBoundary resetKey={location.pathname}>
+        <Suspense fallback={<PageLoader />}>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Scuderia />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/races" element={<Races />} />
+              <Route path="/games" element={<Games />} />
+              <Route path="/game" element={<Navigate to="/games" replace />} />
+              <Route path="/telemetry" element={<Telemetry />} />
+              <Route path="/legends" element={<Legends />} />
+              <Route path="/heritage" element={<Heritage />} />
+              <Route path="/credits" element={<Credits />} />
+              <Route path="/about" element={<About />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AnimatePresence>
+        </Suspense>
+      </ErrorBoundary>
       <Footer />
     </MotionConfig>
   );
