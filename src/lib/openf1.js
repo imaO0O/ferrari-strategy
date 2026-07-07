@@ -39,10 +39,27 @@ export const of1 = {
   // радиопереговоры пилота в сессии (mp3-ссылки)
   teamRadio: (sessionKey, driverNumber) =>
     getJSON(`/team_radio?session_key=${sessionKey}&driver_number=${driverNumber}`),
+  // все круги всех пилотов сессии (для счётчика кругов и графика гэпов)
+  lapsAll: (sessionKey) => getJSON(`/laps?session_key=${sessionKey}`),
+  // отрезки на комплектах шин: компаунд, круги начала/конца
+  stints: (sessionKey) => getJSON(`/stints?session_key=${sessionKey}`),
   // позиции БЕЗ кэша — для live-режима во время сессии
   positionsFresh: async (sessionKey) => {
     const res = await fetch(`${BASE}/position?session_key=${sessionKey}`);
     if (!res.ok) throw new Error(`OpenF1 ${res.status} (live)`);
+    return res.json();
+  },
+  // свежие интервалы (последние 2 минуты) — для live-гэпов
+  intervalsFresh: async (sessionKey) => {
+    const from = new Date(Date.now() - 120_000).toISOString();
+    const res = await fetch(`${BASE}/intervals?session_key=${sessionKey}&date%3E${from}`);
+    if (!res.ok) throw new Error(`OpenF1 ${res.status} (live intervals)`);
+    return res.json();
+  },
+  // стинты БЕЗ кэша — текущая резина в live
+  stintsFresh: async (sessionKey) => {
+    const res = await fetch(`${BASE}/stints?session_key=${sessionKey}`);
+    if (!res.ok) throw new Error(`OpenF1 ${res.status} (live stints)`);
     return res.json();
   },
   // круги пилота: старт каждого круга и его длительность
