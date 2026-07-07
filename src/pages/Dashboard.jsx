@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageWrap from "../components/PageWrap";
 import OnThisDay from "../components/OnThisDay";
+import Predictions from "../components/Predictions";
 import { Reveal, KineticTitle, SectionTitle, Marquee } from "../components/ui";
 import { Countdown, PosChip, raceDate } from "../components/racing";
 import { api } from "../lib/api";
 import { useWeekend, sessionRu, fmtSessionTime } from "../lib/useWeekend";
+import { usePageMeta } from "../lib/usePageMeta";
 import { gpRu, countryRu, driverRu, formatDateRu, teamColor, circuitGpRu } from "../lib/i18n";
 
 /* Расписание сессий текущего гоночного уик-энда (появляется только в дни ГП) */
@@ -78,6 +80,10 @@ function StandingsCard({ title, rows, linkTab }) {
 }
 
 export default function Dashboard() {
+  usePageMeta(
+    "Дашборд Формулы-1 — зачёты, прогнозы, следующая гонка",
+    "Обзор сезона Ф1: положение в чемпионате, подиум последней гонки, прогнозы на Гран-при и расписание гоночного уик-энда.",
+  );
   const [state, setState] = useState({ status: "loading" });
 
   useEffect(() => {
@@ -92,9 +98,11 @@ export default function Dashboard() {
         ]);
         if (!alive) return;
         const now = Date.now();
+        const driversAll = ds.StandingsTable.StandingsLists[0]?.DriverStandings ?? [];
         setState({
           status: "ready",
-          drivers: (ds.StandingsTable.StandingsLists[0]?.DriverStandings ?? []).slice(0, 5),
+          driversAll,
+          drivers: driversAll.slice(0, 5),
           teams: (cs.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? []).slice(0, 5),
           nextRace:
             (sched.RaceTable.Races ?? []).find((r) => raceDate(r).getTime() > now) ?? null,
@@ -110,7 +118,8 @@ export default function Dashboard() {
     };
   }, []);
 
-  const { drivers, teams, nextRace, lastRace, season } = state.status === "ready" ? state : {};
+  const { drivers, driversAll, teams, nextRace, lastRace, season } =
+    state.status === "ready" ? state : {};
 
   return (
     <PageWrap>
@@ -180,6 +189,7 @@ export default function Dashboard() {
             ) : (
               <p className="text-dim">Сезон завершён — увидимся на зимних тестах. 🏁</p>
             )}
+            <Predictions nextRace={nextRace} standings={driversAll} season={season} />
             <div className="mt-8">
               <OnThisDay />
             </div>
@@ -250,6 +260,52 @@ export default function Dashboard() {
                     );
                   })}
                 </div>
+
+                {/* авто-итоги: что решило гонку */}
+                {(() => {
+                  const results = lastRace.Results ?? [];
+                  const fl = results.find((r) => r.FastestLap?.rank === "1");
+                  const flName = fl && driverRu(fl.Driver);
+                  const mover = results
+                    .filter((r) => +r.grid > 0)
+                    .map((r) => ({ r, delta: +r.grid - +r.position }))
+                    .sort((a, b) => b.delta - a.delta)[0];
+                  const moverName = mover && driverRu(mover.r.Driver);
+                  const ferrariPts = results
+                    .filter((r) => r.Constructor.constructorId === "ferrari")
+                    .reduce((s, r) => s + +r.points, 0);
+                  const facts = [
+                    fl && {
+                      label: "БЫСТРЕЙШИЙ КРУГ",
+                      value: fl.FastestLap?.Time?.time ?? "—",
+                      sub: `${flName.given} ${flName.family}`,
+                    },
+                    mover &&
+                      mover.delta > 0 && {
+                        label: "ПРОРЫВ ГОНКИ",
+                        value: `+${mover.delta}`,
+                        sub: `${moverName.given} ${moverName.family}: ${mover.r.grid} → ${mover.r.position}`,
+                      },
+                    {
+                      label: "ОЧКИ FERRARI ЗА ГОНКУ",
+                      value: `+${ferrariPts}`,
+                      sub: ferrariPts >= 25 ? "Отличный урожай!" : ferrariPts > 0 ? "В копилку Кубка конструкторов" : "Бывает и такое…",
+                    },
+                  ].filter(Boolean);
+                  return (
+                    <div className="mt-8 grid gap-5 sm:grid-cols-3">
+                      {facts.map((f, i) => (
+                        <Reveal key={f.label} delay={i * 0.07}>
+                          <div className="h-full rounded-xl border border-line bg-panel p-5">
+                            <p className="text-[9px] font-bold tracking-[0.35em] text-dim">{f.label}</p>
+                            <p className="mt-2 font-digits text-3xl font-bold text-giallo">{f.value}</p>
+                            <p className="mt-1 text-sm text-dim">{f.sub}</p>
+                          </div>
+                        </Reveal>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </section>
           )}
