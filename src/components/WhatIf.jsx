@@ -3,16 +3,10 @@ import { Reveal } from "./ui";
 import { PosChip } from "./racing";
 import { api } from "../lib/api";
 import { driverRu, teamColor } from "../lib/i18n";
+import { POINT_SYSTEMS as SYSTEMS, recomputeStandings } from "../lib/points";
 
 /* «Что если»: пересчёт личного зачёта по очковым системам разных эпох.
    Считаются только гонки (спринтов в старых системах не было). */
-
-const SYSTEMS = [
-  { id: "modern", label: "2010 — наши дни", points: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] },
-  { id: "2003", label: "2003–2009", points: [10, 8, 6, 5, 4, 3, 2, 1] },
-  { id: "1991", label: "1991–2002", points: [10, 6, 4, 3, 2, 1] },
-  { id: "classic", label: "1961–1990", points: [9, 6, 4, 3, 2, 1] },
-];
 
 export default function WhatIf({ officialStandings }) {
   const [data, setData] = useState({ status: "loading" });
@@ -33,25 +27,9 @@ export default function WhatIf({ officialStandings }) {
 
   const table = useMemo(() => {
     if (data.status !== "ready") return null;
-    const totals = {};
-    for (const race of data.races) {
-      for (const res of race.Results ?? []) {
-        const pos = +res.position;
-        const pts = system.points[pos - 1] ?? 0;
-        const id = res.Driver.driverId;
-        totals[id] ??= { driver: res.Driver, constructorId: res.Constructor.constructorId, pts: 0 };
-        totals[id].pts += pts;
-      }
-    }
     const officialPos = {};
     for (const s of officialStandings) officialPos[s.Driver.driverId] = +s.position;
-    return Object.values(totals)
-      .sort((a, b) => b.pts - a.pts)
-      .map((row, i) => ({
-        ...row,
-        position: i + 1,
-        delta: (officialPos[row.driver.driverId] ?? i + 1) - (i + 1),
-      }));
+    return recomputeStandings(data.races, system, officialPos);
   }, [data, system, officialStandings]);
 
   return (

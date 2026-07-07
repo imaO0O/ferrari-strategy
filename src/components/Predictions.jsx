@@ -3,6 +3,7 @@ import { Reveal } from "./ui";
 import DownloadCardButton from "./games/DownloadCardButton";
 import { raceDate } from "./racing";
 import { api } from "../lib/api";
+import { scorePodium } from "../lib/scoring";
 import { gpRu, driverRu } from "../lib/i18n";
 
 /* Прогнозы без сервера: подиум выбирается до старта, хранится в браузере,
@@ -56,10 +57,7 @@ export default function Predictions({ nextRace, standings, season }) {
           const results = d.RaceTable.Races?.[0]?.Results;
           if (!results?.length) continue; // результатов ещё нет — проверим позже
           const actual = results.slice(0, 3).map((r) => r.Driver.driverId);
-          entry.points = entry.picks.reduce(
-            (sum, id, i) => sum + (actual[i] === id ? 5 : actual.includes(id) ? 2 : 0),
-            0,
-          );
+          entry.points = scorePodium(entry.picks, actual);
           changed = true;
         } catch {
           /* сеть подвела — досчитаем в следующий раз */
