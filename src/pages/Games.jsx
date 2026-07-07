@@ -5,6 +5,7 @@ import Reaction from "../components/games/Reaction";
 import Quiz from "../components/games/Quiz";
 import PitStop from "../components/games/PitStop";
 import Tracks from "../components/games/Tracks";
+import { usePageMeta } from "../lib/usePageMeta";
 
 const TABS = [
   { id: "reaction", label: "Реакция", sub: "Огни погасли — жми!" },
@@ -14,6 +15,10 @@ const TABS = [
 ];
 
 export default function Games() {
+  usePageMeta(
+    "Игры Ф1 — реакция на старт, пит-стоп, викторина, трассы",
+    "Четыре бесплатные игры для фанатов Формулы-1: проверь реакцию на старте, смени колёса на пит-стопе, пройди викторину о Ferrari и угадай трассу по контуру.",
+  );
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "reaction";
 

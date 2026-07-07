@@ -17,6 +17,7 @@ import { Countdown } from "../components/racing";
 import { api, daysSinceLastTitle } from "../lib/api";
 import { commonsFile, DRIVER_PHOTOS } from "../lib/images";
 import { gpRu, countryRu, driverRu, formatDateRu } from "../lib/i18n";
+import { usePageMeta } from "../lib/usePageMeta";
 
 const FERRARI_ID = "ferrari";
 
@@ -185,6 +186,10 @@ function StatBlock({ label, value, accent = false }) {
 }
 
 export default function Scuderia() {
+  usePageMeta(
+    "Скудерия — всё о Ferrari в Формуле-1",
+    "Живая статистика Ferrari в сезоне Формулы-1: пилоты, очки, погоня за титулом, следующая гонка с обратным отсчётом.",
+  );
   const [state, setState] = useState({ status: "loading" });
   const [winsAtNext, setWinsAtNext] = useState(null);
   const heroRef = useRef(null);

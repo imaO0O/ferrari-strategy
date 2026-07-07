@@ -5,6 +5,7 @@ import PageWrap from "../components/PageWrap";
 import { Reveal, ImageReveal, KineticTitle, Marquee } from "../components/ui";
 import { commonsFile } from "../lib/images";
 import { HERO_IMAGE, TIMELINE } from "../data/heritage";
+import { usePageMeta } from "../lib/usePageMeta";
 
 function DecadeDivider({ decade }) {
   const ref = useRef(null);
@@ -59,6 +60,10 @@ function TimelineItem({ item, flip }) {
 }
 
 export default function Heritage() {
+  usePageMeta(
+    "История Ferrari в Формуле-1 — с 1947 года до наших дней",
+    "Интерактивный таймлайн Скудерии: от первой 125 S и побед Аскари до эры Шумахера и прихода Хэмилтона.",
+  );
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "24%"]);

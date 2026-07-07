@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PageWrap from "../components/PageWrap";
 import { Reveal, SectionTitle } from "../components/ui";
 import { IMAGES, commonsFile, commonsPage } from "../lib/images";
+import { usePageMeta } from "../lib/usePageMeta";
 
 const stripHtml = (html) =>
   new DOMParser().parseFromString(html ?? "", "text/html").body.textContent?.trim() ?? "";
@@ -43,6 +44,10 @@ function useCommonsMeta() {
 }
 
 export default function Credits() {
+  usePageMeta(
+    "Источники и лицензии",
+    "Откуда фотографии и данные: атрибуция снимков Wikimedia Commons, API Jolpica и OpenF1, дисклеймер фан-проекта.",
+  );
   const meta = useCommonsMeta();
 
   return (

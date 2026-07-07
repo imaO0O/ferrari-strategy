@@ -6,6 +6,7 @@ import { Reveal, ImageReveal, KineticTitle, Marquee, EASE } from "../components/
 import { commonsFile } from "../lib/images";
 import { LEGENDS } from "../data/legends";
 import { GARAGE } from "../data/garage";
+import { usePageMeta } from "../lib/usePageMeta";
 
 function LegendCard({ legend, index, onOpen }) {
   return (
@@ -155,6 +156,10 @@ const TABS = [
 ];
 
 export default function Legends() {
+  usePageMeta(
+    "Легенды Ferrari — чемпионы и великие болиды Скудерии",
+    "Досье всех чемпионов мира за рулём Ferrari — от Аскари до Райкконена — и гараж легендарных машин от 125 S до SF-24.",
+  );
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "pilots";
   const [open, setOpen] = useState(null);
