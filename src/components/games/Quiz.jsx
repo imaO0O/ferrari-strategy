@@ -14,10 +14,10 @@ const loadBest = () => {
 
 const verdict = (score, total) => {
   const ratio = score / total;
-  if (ratio === 1) return "Il Commendatore! Безупречно. 🏆";
+  if (ratio === 1) return "Il Commendatore! Безупречно.";
   if (ratio >= 0.75) return "Настоящий тифози — Маранелло гордится тобой!";
   if (ratio >= 0.5) return "Крепкий болельщик, но есть куда расти.";
-  return "Пора пересмотреть «Историю» на этом сайте 😉";
+  return "Пора пересмотреть раздел «История» на этом сайте.";
 };
 
 export default function Quiz() {
@@ -87,7 +87,7 @@ export default function Quiz() {
             card={{
               label: "Викторина о Ferrari",
               value: `${score}/${QUIZ.length}`,
-              sub: verdict(score, QUIZ.length).replace(/ ?[🏆😉]+$/u, ""),
+              sub: verdict(score, QUIZ.length),
             }}
           />
         </div>

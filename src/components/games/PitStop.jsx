@@ -169,7 +169,7 @@ export default function PitStop() {
               </p>
               <p className="text-lg font-bold">
                 {total < 1.82
-                  ? "Быстрее рекорда Red Bull (1.82 с)! Невероятно! 🏆"
+                  ? "Быстрее рекорда Red Bull (1.82 с). Невероятно!"
                   : total < 2.5
                     ? "Уровень топ-команды. Маранелло аплодирует!"
                     : total < 4

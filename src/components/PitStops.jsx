@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Reveal, SectionTitle } from "./ui";
 import EmptyState from "./EmptyState";
+import { TrophyIcon } from "./icons";
 import { of1 } from "../lib/openf1";
 
 /* Пит-стопы гонки: каждая остановка с длительностью нахождения
@@ -70,7 +71,11 @@ export default function PitStops({ sessionKey, drivers }) {
                         : "border-line bg-panel"
                   }`}
                 >
-                  {i === 0 && <span title="Самый быстрый пит-стоп">🏆</span>}
+                  {i === 0 && (
+                    <span title="Самый быстрый пит-стоп" className="text-giallo">
+                      <TrophyIcon className="h-4.5 w-4.5" />
+                    </span>
+                  )}
                   <span className="h-5 w-1 rounded-full" style={{ background: d?.color ?? "#8a8a93" }} />
                   <span className="w-10 font-digits text-sm font-bold">{d?.acronym ?? p.driver_number}</span>
                   <span className="flex-1 font-digits text-xs text-dim">круг {p.lap_number}</span>

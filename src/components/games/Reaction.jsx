@@ -186,7 +186,7 @@ export default function Reaction() {
         {best != null && (
           <p className="mt-2 text-sm text-dim">
             Лучшее время: <span className="font-digits text-giallo">{best} мс</span>
-            {best < 200 && " — быстрее пилота Ф1! 🏆"}
+            {best < 200 && " — быстрее пилота Ф1!"}
           </p>
         )}
         {average != null && (

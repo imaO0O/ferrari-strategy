@@ -37,10 +37,10 @@ const loadBest = () => {
 };
 
 const verdict = (score) => {
-  if (score === ROUNDS) return "Штурман уровня чемпионата мира! 🏆";
+  if (score === ROUNDS) return "Штурман уровня чемпионата мира!";
   if (score >= 8) return "Отлично — трассы ты знаешь как свои пять поворотов.";
   if (score >= 5) return "Неплохо! Ещё пара сезонов у телевизора — и будет идеально.";
-  return "Похоже, пора пересмотреть календарь сезона 😉";
+  return "Похоже, пора пересмотреть календарь сезона.";
 };
 
 export default function Tracks() {
@@ -122,7 +122,7 @@ export default function Tracks() {
             card={{
               label: "Угадай трассу",
               value: `${score}/${ROUNDS}`,
-              sub: verdict(score).replace(/ ?[🏆😉]+$/u, ""),
+              sub: verdict(score),
             }}
           />
         </div>

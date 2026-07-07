@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useWeekend, sessionRu, untilRu } from "../lib/useWeekend";
 import { circuitGpRu } from "../lib/i18n";
+import { FlagIcon } from "./icons";
 
 /* Тонкая полоса под навбаром в дни гоночного уик-энда:
    что за сессия следующая и сколько до неё осталось (местное время). */
@@ -22,7 +23,7 @@ export default function WeekendStrip() {
       to="/dashboard"
       className="fixed inset-x-0 top-16 z-40 block bg-giallo py-1.5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-carbon transition-colors hover:bg-white"
     >
-      🏁 {circuitGpRu(circuit)}{" "}
+      <FlagIcon className="mr-1 inline h-3.5 w-3.5 align-[-2px]" /> {circuitGpRu(circuit)}{" "}
       {live ? (
         <>
           · <span className="animate-pulse text-rosso">● LIVE</span> {sessionRu(live.session_name)}
