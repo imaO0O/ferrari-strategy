@@ -4,10 +4,58 @@ import PageWrap from "../components/PageWrap";
 import TrackMap from "../components/TrackMap";
 import TyreStrategy, { compoundOf } from "../components/TyreStrategy";
 import RaceStory from "../components/RaceStory";
+import LapCompare from "../components/LapCompare";
+import PitStops from "../components/PitStops";
+import LiveTrackMap from "../components/LiveTrackMap";
+
+/* Погода сессии: последние показания метеостанции */
+function WeatherChips({ sessionKey }) {
+  const [w, setW] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    of1
+      .weather(sessionKey)
+      .then((rows) => alive && setW(rows.at(-1) ?? null))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [sessionKey]);
+  if (!w) return null;
+  const chips = [
+    w.track_temperature != null && `Трасса ${Math.round(w.track_temperature)}°`,
+    w.air_temperature != null && `Воздух ${Math.round(w.air_temperature)}°`,
+    w.humidity != null && `Влажность ${Math.round(w.humidity)}%`,
+    w.rainfall ? "Дождь 🌧" : "Сухо",
+  ].filter(Boolean);
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      {chips.map((c) => (
+        <span
+          key={c}
+          className="rounded-md border border-line bg-panel px-3 py-1.5 font-digits text-xs text-dim"
+        >
+          {c}
+        </span>
+      ))}
+    </div>
+  );
+}
 import { Reveal, KineticTitle, Marquee, SectionTitle, EASE } from "../components/ui";
 import { of1 } from "../lib/openf1";
 import { circuitGpRu } from "../lib/i18n";
 import { usePageMeta } from "../lib/usePageMeta";
+import { WaveMotif } from "../components/motifs";
+import EmptyState from "../components/EmptyState";
+import { loadFav, isFavOpenF1 } from "../lib/favorite";
+
+/* Стиль строки башни: «мой пилот» — жёлтый, Ferrari — красный */
+const towerRowStyle = (driver) =>
+  isFavOpenF1(loadFav(), driver)
+    ? "border-giallo/60 bg-giallo/[0.06]"
+    : driver.team === "Ferrari"
+      ? "border-rosso/50 bg-rosso/5"
+      : "border-line bg-panel";
 
 /* Телеметрия: браузерный реплей любой прошедшей гонки сезона на данных
    OpenF1 — башня позиций со счётчиком кругов, карта трассы и радио Ferrari. */
@@ -149,9 +197,7 @@ function ReplayTower({ drivers, events, t0, duration, lapMarks }) {
             key={driver.number}
             layout
             transition={{ duration: 0.5, ease: EASE }}
-            className={`flex items-center gap-3 rounded-md border px-4 py-2.5 ${
-              driver.team === "Ferrari" ? "border-rosso/50 bg-rosso/5" : "border-line bg-panel"
-            }`}
+            className={`flex items-center gap-3 rounded-md border px-4 py-2.5 ${towerRowStyle(driver)}`}
           >
             <span
               className={`inline-flex min-w-9 justify-center rounded-md px-2 py-1 font-digits text-xs font-bold ${
@@ -453,7 +499,8 @@ export default function Telemetry() {
 
   return (
     <PageWrap>
-      <section className="mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+        <WaveMotif />
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />
@@ -492,6 +539,7 @@ export default function Telemetry() {
                 })}
               </select>
             </div>
+            {sessionKey && <WeatherChips sessionKey={sessionKey} />}
           </Reveal>
         )}
       </section>
@@ -506,19 +554,12 @@ export default function Telemetry() {
       <section className="mx-auto max-w-7xl px-5 py-14">
         {state.status === "loading" && <div className="h-96 animate-pulse rounded-xl bg-panel" />}
         {state.status === "error" && (
-          <div className="text-center">
-            <p className="text-xl font-bold">Телеметрия сейчас недоступна.</p>
-            <p className="mt-2 text-dim">
-              У OpenF1 строгий лимит запросов, а данные появляются с задержкой после финиша.
-              Подожди минуту и попробуй снова.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-6 rounded-md bg-rosso px-6 py-3 text-sm font-black uppercase tracking-widest transition-transform hover:scale-105"
-            >
-              Повторить
-            </button>
-          </div>
+          <EmptyState
+            title="Телеметрия сейчас недоступна"
+            note="У OpenF1 строгий лимит запросов, а данные появляются с задержкой после финиша. Подожди минуту и попробуй снова."
+            actionLabel="Повторить"
+            onAction={() => window.location.reload()}
+          />
         )}
         {state.status === "ready" &&
           (() => {
@@ -562,7 +603,7 @@ export default function Telemetry() {
 
       {state.status === "ready" && (
         <>
-          {Date.now() > Date.parse(state.session.date_end) && (
+          {Date.now() > Date.parse(state.session.date_end) ? (
             <>
               <TyreStrategy
                 key={`tyres-${state.session.session_key}`}
@@ -570,7 +611,18 @@ export default function Telemetry() {
                 drivers={state.drivers}
                 finishOrder={state.finishOrder}
               />
+              <PitStops
+                key={`pits-${state.session.session_key}`}
+                sessionKey={state.session.session_key}
+                drivers={state.drivers}
+              />
               <RaceStory
+                laps={state.laps}
+                drivers={state.drivers}
+                finishOrder={state.finishOrder}
+              />
+              <LapCompare
+                key={`pace-${state.session.session_key}`}
                 laps={state.laps}
                 drivers={state.drivers}
                 finishOrder={state.finishOrder}
@@ -581,6 +633,12 @@ export default function Telemetry() {
                 drivers={state.drivers}
               />
             </>
+          ) : (
+            <LiveTrackMap
+              key={`live-map-${state.session.session_key}`}
+              sessionKey={state.session.session_key}
+              drivers={state.drivers}
+            />
           )}
           <FerrariRadio sessionKey={state.session.session_key} drivers={state.drivers} />
         </>

@@ -63,6 +63,10 @@ export const of1 = {
     return res.json();
   },
   // круги пилота: старт каждого круга и его длительность
+  // пит-стопы сессии: круг и длительность по каждому пилоту
+  pits: (sessionKey) => getJSON(`/pit?session_key=${sessionKey}`),
+  // погода по ходу сессии: температура трассы/воздуха, дождь
+  weather: (sessionKey) => getJSON(`/weather?session_key=${sessionKey}`),
   laps: (sessionKey, driverNumber) =>
     getJSON(`/laps?session_key=${sessionKey}&driver_number=${driverNumber}`),
   // координаты машин (x, y) в интервале времени; driverNumber опционален.
