@@ -11,6 +11,7 @@ import { usePageMeta } from "../lib/usePageMeta";
 import { GaugeMotif } from "../components/motifs";
 import EmptyState from "../components/EmptyState";
 import { loadFav } from "../lib/favorite";
+import DataNote from "../components/DataNote";
 import { gpRu, countryRu, driverRu, formatDateRu, teamColor, circuitGpRu } from "../lib/i18n";
 
 /* Расписание сессий текущего гоночного уик-энда (появляется только в дни ГП) */
@@ -109,6 +110,7 @@ export default function Dashboard() {
         const driversAll = ds.StandingsTable.StandingsLists[0]?.DriverStandings ?? [];
         setState({
           status: "ready",
+          loadedAt: Date.now(),
           driversAll,
           drivers: driversAll.slice(0, 5),
           teams: (cs.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? []).slice(0, 5),
@@ -147,7 +149,7 @@ export default function Dashboard() {
       <Marquee
         items={["FERRARI STRATEGY", "✦", "LIVE", "✦", "FORMULA 1", "✦"]}
         speed={24}
-        className="-rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
+        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
         itemClassName="mx-4"
       />
 
@@ -195,7 +197,7 @@ export default function Dashboard() {
                 </div>
               </Reveal>
             ) : (
-              <p className="text-dim">Сезон завершён — увидимся на зимних тестах. 🏁</p>
+              <p className="text-dim">Сезон завершён — увидимся на зимних тестах.</p>
             )}
             <Predictions nextRace={nextRace} standings={driversAll} season={season} />
             <div className="mt-8">
@@ -230,6 +232,9 @@ export default function Dashboard() {
                 color: teamColor(t.Constructor.constructorId),
               }))}
             />
+            <div className="-mt-2 md:col-span-2">
+              <DataNote updatedAt={state.loadedAt} />
+            </div>
           </section>
 
           {/* ПОДИУМ ПОСЛЕДНЕЙ ГОНКИ */}

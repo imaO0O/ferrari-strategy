@@ -5,6 +5,7 @@ import PageWrap from "../components/PageWrap";
 import Magnetic from "../components/Magnetic";
 import Confetti from "../components/Confetti";
 import SeasonChart from "../components/SeasonChart";
+import DataNote from "../components/DataNote";
 import {
   Reveal,
   ImageReveal,
@@ -207,7 +208,12 @@ export default function Scuderia() {
           api.ferrariResults(),
           api.ferrariAllWins(),
         ]);
-        if (alive) setState({ status: "ready", ...deriveSeason({ cs, ds, sched, fr, allWins }) });
+        if (alive)
+          setState({
+            status: "ready",
+            loadedAt: Date.now(),
+            ...deriveSeason({ cs, ds, sched, fr, allWins }),
+          });
       } catch (e) {
         if (alive) setState({ status: "error", message: e.message });
       }
@@ -318,7 +324,7 @@ export default function Scuderia() {
           <Confetti onDone={() => setConfetti(false)} />
           <div className="pointer-events-none fixed inset-x-0 bottom-10 z-[94] text-center">
             <span className="rounded-md bg-rosso px-5 py-3 text-sm font-black uppercase tracking-widest shadow-lg">
-              Ferrari выиграла последнюю гонку! Forza! 🏆
+              Ferrari выиграла последнюю гонку. Forza!
             </span>
           </div>
         </>
@@ -455,6 +461,7 @@ export default function Scuderia() {
             />
             <p className="mt-4 text-dim">…и счёт всё ещё идёт. Бразилия-2008 была давно. Forza Ferrari.</p>
           </Reveal>
+          <DataNote updatedAt={state.loadedAt} />
         </div>
       </section>
 
@@ -511,7 +518,7 @@ export default function Scuderia() {
           <SectionTitle kicker="PROSSIMA GARA" title="Следующая гонка" className="mb-12" />
           {state.status === "loading" && <div className="h-72 animate-pulse rounded-xl bg-panel" />}
           {state.status === "ready" && !nextRace && (
-            <p className="text-dim">Сезон завершён — увидимся на зимних тестах. 🏁</p>
+            <p className="text-dim">Сезон завершён — увидимся на зимних тестах.</p>
           )}
           {state.status === "ready" && nextRace && (
             <div className="grid items-stretch gap-8 lg:grid-cols-2">

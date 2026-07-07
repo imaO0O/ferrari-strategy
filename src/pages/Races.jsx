@@ -11,6 +11,7 @@ import { gpRu, countryRu, driverRu, formatDateRu, teamColor } from "../lib/i18n"
 import { usePageMeta } from "../lib/usePageMeta";
 import { CheckerMotif } from "../components/motifs";
 import EmptyState from "../components/EmptyState";
+import DataNote from "../components/DataNote";
 
 const TABS = [
   { id: "calendar", label: "Календарь" },
@@ -383,6 +384,7 @@ export default function Races() {
         if (!alive) return;
         setState({
           status: "ready",
+          loadedAt: Date.now(),
           races: sched.RaceTable.Races ?? [],
           drivers: ds.StandingsTable.StandingsLists[0]?.DriverStandings ?? [],
           teams: cs.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? [],
@@ -430,7 +432,7 @@ export default function Races() {
       <Marquee
         items={["FERRARI STRATEGY", "✦", "GRAND PRIX", "✦", "FORMULA 1", "✦"]}
         speed={24}
-        className="rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
+        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
         itemClassName="mx-4"
       />
 
@@ -485,6 +487,7 @@ export default function Races() {
             )}
             {tab === "duel" && state.drivers.length >= 2 && <Duel standings={state.drivers} />}
             {tab === "whatif" && <WhatIf officialStandings={state.drivers} />}
+            <DataNote updatedAt={state.loadedAt} />
           </>
         )}
       </section>

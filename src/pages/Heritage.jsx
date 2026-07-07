@@ -106,7 +106,7 @@ export default function Heritage() {
         items={["LA STORIA", "✦", "MARANELLO", "✦", "SINCE 1947", "✦", "FERRARI STRATEGY", "✦"]}
         speed={24}
         reverse
-        className="rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
+        className="bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
         itemClassName="mx-4"
       />
 

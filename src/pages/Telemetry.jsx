@@ -26,7 +26,7 @@ function WeatherChips({ sessionKey }) {
     w.track_temperature != null && `Трасса ${Math.round(w.track_temperature)}°`,
     w.air_temperature != null && `Воздух ${Math.round(w.air_temperature)}°`,
     w.humidity != null && `Влажность ${Math.round(w.humidity)}%`,
-    w.rainfall ? "Дождь 🌧" : "Сухо",
+    w.rainfall ? "Дождь" : "Сухо",
   ].filter(Boolean);
   return (
     <div className="mt-4 flex flex-wrap gap-2">
@@ -47,6 +47,7 @@ import { circuitGpRu } from "../lib/i18n";
 import { usePageMeta } from "../lib/usePageMeta";
 import { WaveMotif } from "../components/motifs";
 import EmptyState from "../components/EmptyState";
+import DataNote from "../components/DataNote";
 import { loadFav, isFavOpenF1 } from "../lib/favorite";
 
 /* Стиль строки башни: «мой пилот» — жёлтый, Ferrari — красный */
@@ -479,6 +480,7 @@ export default function Telemetry() {
         if (!alive) return;
         setState({
           status: "ready",
+          loadedAt: Date.now(),
           session,
           drivers,
           events,
@@ -547,7 +549,7 @@ export default function Telemetry() {
       <Marquee
         items={["LIVE TIMING", "✦", "BOX BOX", "✦", "FERRARI STRATEGY", "✦"]}
         speed={24}
-        className="rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
+        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
         itemClassName="mx-4"
       />
 
@@ -596,6 +598,7 @@ export default function Telemetry() {
                   duration={state.duration}
                   lapMarks={state.lapMarks}
                 />
+                <DataNote source="OpenF1 API" updatedAt={state.loadedAt} />
               </>
             );
           })()}

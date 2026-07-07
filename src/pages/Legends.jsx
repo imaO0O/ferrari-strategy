@@ -209,7 +209,7 @@ export default function Legends() {
             : ["LE MACCHINE", "✦", "DELLA SCUDERIA", "✦", "FERRARI STRATEGY", "✦"]
         }
         speed={24}
-        className="rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
+        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
         itemClassName="mx-4"
       />
 
