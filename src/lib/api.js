@@ -42,6 +42,8 @@ export const api = {
     getJSON(`/current/constructors/${constructorId}/results.json?limit=100`),
   constructorSprints: (constructorId) =>
     getJSON(`/current/constructors/${constructorId}/sprint.json?limit=100`),
+  // все результаты сезона одним запросом — для пересчёта очковых систем
+  seasonResults: () => getJSON("/current/results.json?limit=1000"),
 };
 
 // The last Ferrari constructors' title was clinched at the 2008 Brazilian GP.

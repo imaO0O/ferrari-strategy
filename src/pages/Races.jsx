@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PageWrap from "../components/PageWrap";
 import Duel from "../components/Duel";
+import WhatIf from "../components/WhatIf";
 import { Reveal, KineticTitle, Marquee } from "../components/ui";
 import { Countdown, PosChip, raceDate } from "../components/racing";
 import { api } from "../lib/api";
 import { gpRu, countryRu, driverRu, formatDateRu, teamColor } from "../lib/i18n";
+import { usePageMeta } from "../lib/usePageMeta";
 
 const TABS = [
   { id: "calendar", label: "Календарь" },
@@ -13,6 +15,7 @@ const TABS = [
   { id: "drivers", label: "Личный зачёт" },
   { id: "teams", label: "Конструкторы" },
   { id: "duel", label: "Дуэль" },
+  { id: "whatif", label: "Что если" },
 ];
 
 /* ── Календарь ─────────────────────────────────────────────── */
@@ -326,6 +329,10 @@ function StandingsTable({ rows }) {
 /* ── Страница ──────────────────────────────────────────────── */
 
 export default function Races() {
+  usePageMeta(
+    "Гонки — календарь Формулы-1, результаты и зачёты",
+    "Календарь сезона Формулы-1, результаты гонок и квалификаций, личный зачёт, Кубок конструкторов, дуэли пилотов и пересчёт очков.",
+  );
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "calendar";
   const [state, setState] = useState({ status: "loading" });
@@ -438,6 +445,7 @@ export default function Races() {
               />
             )}
             {tab === "duel" && state.drivers.length >= 2 && <Duel standings={state.drivers} />}
+            {tab === "whatif" && <WhatIf officialStandings={state.drivers} />}
           </>
         )}
       </section>
