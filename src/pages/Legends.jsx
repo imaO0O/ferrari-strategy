@@ -7,6 +7,7 @@ import { commonsFile } from "../lib/images";
 import { LEGENDS } from "../data/legends";
 import { GARAGE } from "../data/garage";
 import { usePageMeta } from "../lib/usePageMeta";
+import { StripesMotif } from "../components/motifs";
 
 function LegendCard({ legend, index, onOpen }) {
   return (
@@ -167,7 +168,8 @@ export default function Legends() {
 
   return (
     <PageWrap>
-      <section className="mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+        <StripesMotif />
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />

@@ -16,6 +16,7 @@ import Telemetry from "./pages/Telemetry";
 import Legends from "./pages/Legends";
 import Heritage from "./pages/Heritage";
 import Credits from "./pages/Credits";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   const location = useLocation();
@@ -59,7 +60,7 @@ export default function App() {
           <Route path="/legends" element={<Legends />} />
           <Route path="/heritage" element={<Heritage />} />
           <Route path="/credits" element={<Credits />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
       <Footer />

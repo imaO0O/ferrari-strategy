@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Reveal, SectionTitle } from "./ui";
+import EmptyState from "./EmptyState";
 import { of1 } from "../lib/openf1";
 
 /* Стратегия шин гонки: горизонтальные полосы стинтов по пилотам
@@ -67,17 +68,12 @@ export default function TyreStrategy({ sessionKey, drivers, finishOrder }) {
         {stints == null && <div className="h-72 animate-pulse rounded-xl bg-panel" />}
 
         {stints?.length === 0 && (
-          <div className="rounded-xl border border-line bg-panel p-8 text-center">
-            <p className="text-dim">
-              Данные о шинах пока не пришли — у OpenF1 строгий лимит запросов.
-            </p>
-            <button
-              onClick={() => setAttempt((a) => a + 1)}
-              className="mt-4 rounded-md bg-rosso px-6 py-2.5 text-sm font-black uppercase tracking-widest transition-transform hover:scale-105"
-            >
-              Повторить
-            </button>
-          </div>
+          <EmptyState
+            title="Данные о шинах пока не пришли"
+            note="У OpenF1 строгий лимит запросов — обычно помогает повторить через полминуты."
+            actionLabel="Повторить"
+            onAction={() => setAttempt((a) => a + 1)}
+          />
         )}
 
         {stints?.length > 0 && (
