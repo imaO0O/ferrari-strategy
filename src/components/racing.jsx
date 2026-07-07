@@ -37,6 +37,31 @@ export function Countdown({ target, compact = false }) {
   );
 }
 
+/* Сортировка таблиц: клик по заголовку меняет ключ/направление */
+export function useSort(defaultKey) {
+  const [sort, setSort] = useState({ key: defaultKey, dir: 1 });
+  const toggle = (key) =>
+    setSort((s) => (s.key === key ? { key, dir: -s.dir } : { key, dir: 1 }));
+  return [sort, toggle];
+}
+
+export function SortTh({ label, k, sort, onSort, className = "" }) {
+  const active = sort.key === k;
+  return (
+    <th className={`px-4 py-3 ${className}`}>
+      <button
+        onClick={() => onSort(k)}
+        className={`inline-flex items-center gap-1 uppercase tracking-[0.25em] transition-colors hover:text-white ${
+          active ? "text-giallo" : ""
+        }`}
+      >
+        {label}
+        <span className="font-digits">{active ? (sort.dir > 0 ? "↑" : "↓") : ""}</span>
+      </button>
+    </th>
+  );
+}
+
 /* Чип позиции: топ-3 — красный */
 export function PosChip({ position, children }) {
   return (

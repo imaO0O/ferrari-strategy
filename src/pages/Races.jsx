@@ -4,10 +4,13 @@ import PageWrap from "../components/PageWrap";
 import Duel from "../components/Duel";
 import WhatIf from "../components/WhatIf";
 import { Reveal, KineticTitle, Marquee } from "../components/ui";
-import { Countdown, PosChip, raceDate } from "../components/racing";
+import { Countdown, PosChip, raceDate, useSort, SortTh } from "../components/racing";
+import { useFavDriver } from "../lib/favorite";
 import { api } from "../lib/api";
 import { gpRu, countryRu, driverRu, formatDateRu, teamColor } from "../lib/i18n";
 import { usePageMeta } from "../lib/usePageMeta";
+import { CheckerMotif } from "../components/motifs";
+import EmptyState from "../components/EmptyState";
 
 const TABS = [
   { id: "calendar", label: "Календарь" },
@@ -98,7 +101,7 @@ function Calendar({ races }) {
 
 /* ── Результаты этапа ──────────────────────────────────────── */
 
-function Results({ races }) {
+function Results({ races, favId }) {
   const now = Date.now();
   const finished = useMemo(() => races.filter((r) => raceDate(r).getTime() < now), [races, now]);
   const [round, setRound] = useState(finished.at(-1)?.round ?? null);
@@ -183,7 +186,12 @@ function Results({ races }) {
               {results.map((res) => {
                 const name = driverRu(res.Driver);
                 return (
-                  <tr key={res.Driver.driverId} className="transition-colors hover:bg-panel2/70">
+                  <tr
+                    key={res.Driver.driverId}
+                    className={`transition-colors hover:bg-panel2/70 ${
+                      favId === res.Driver.driverId ? "bg-giallo/[0.06]" : ""
+                    }`}
+                  >
                     <td className="px-4 py-3">
                       <PosChip position={res.position} />
                     </td>
@@ -254,7 +262,12 @@ function Results({ races }) {
                 {results.map((res) => {
                   const name = driverRu(res.Driver);
                   return (
-                    <tr key={res.Driver.driverId} className="transition-colors hover:bg-panel2/70">
+                    <tr
+                    key={res.Driver.driverId}
+                    className={`transition-colors hover:bg-panel2/70 ${
+                      favId === res.Driver.driverId ? "bg-giallo/[0.06]" : ""
+                    }`}
+                  >
                       <td className="px-4 py-3">
                         <PosChip position={res.position} />
                       </td>
@@ -290,36 +303,56 @@ function Results({ races }) {
 
 /* ── Зачёты ────────────────────────────────────────────────── */
 
-function StandingsTable({ rows }) {
+function StandingsTable({ rows, fav, onToggleFav }) {
+  const [sort, toggleSort] = useSort("position");
+  const sorted = [...rows].sort((a, b) => (+a[sort.key] - +b[sort.key]) * sort.dir);
+
   return (
     <Reveal className="overflow-x-auto rounded-xl border border-line">
       <table className="w-full min-w-[480px] text-left text-sm">
         <thead className="bg-panel2 text-[10px] uppercase tracking-[0.25em] text-dim">
           <tr>
-            <th className="px-4 py-3">Место</th>
+            <SortTh label="Место" k="position" sort={sort} onSort={toggleSort} />
             <th className="px-4 py-3">Имя</th>
-            <th className="px-4 py-3">Победы</th>
-            <th className="px-4 py-3 text-right">Очки</th>
+            <SortTh label="Победы" k="wins" sort={sort} onSort={toggleSort} />
+            <SortTh label="Очки" k="points" sort={sort} onSort={toggleSort} className="text-right" />
           </tr>
         </thead>
         <tbody className="divide-y divide-line bg-panel">
-          {rows.map((row) => (
-            <tr key={row.key} className="transition-colors hover:bg-panel2/70">
-              <td className="px-4 py-3">
-                <PosChip position={row.position} />
-              </td>
-              <td className="px-4 py-3 font-bold uppercase tracking-wide">
-                <span
-                  className="mr-3 inline-block h-4 w-1 rounded-full align-middle"
-                  style={{ background: row.color }}
-                />
-                {row.name}
-                {row.sub && <span className="ml-2 text-xs font-normal text-dim">{row.sub}</span>}
-              </td>
-              <td className="px-4 py-3 font-digits text-dim">{row.wins}</td>
-              <td className="px-4 py-3 text-right font-digits text-giallo">{row.points}</td>
-            </tr>
-          ))}
+          {sorted.map((row) => {
+            const isFav = fav && row.driver && fav.id === row.driver.id;
+            return (
+              <tr
+                key={row.key}
+                className={`transition-colors hover:bg-panel2/70 ${isFav ? "bg-giallo/[0.06]" : ""}`}
+              >
+                <td className="px-4 py-3">
+                  <PosChip position={row.position} />
+                </td>
+                <td className="px-4 py-3 font-bold uppercase tracking-wide">
+                  {row.driver && onToggleFav && (
+                    <button
+                      onClick={() => onToggleFav(row.driver)}
+                      title={isFav ? "Убрать «моего пилота»" : "Сделать «моим пилотом»"}
+                      className={`mr-2 align-middle text-base transition-colors ${
+                        isFav ? "text-giallo" : "text-line hover:text-giallo"
+                      }`}
+                    >
+                      ★
+                    </button>
+                  )}
+                  <span
+                    className="mr-3 inline-block h-4 w-1 rounded-full align-middle"
+                    style={{ background: row.color }}
+                  />
+                  {row.name}
+                  {row.sub && <span className="ml-2 text-xs font-normal text-dim">{row.sub}</span>}
+                </td>
+                <td className="px-4 py-3 font-digits text-dim">{row.wins}</td>
+                <td className="px-4 py-3 text-right font-digits text-giallo">{row.points}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </Reveal>
@@ -336,6 +369,7 @@ export default function Races() {
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "calendar";
   const [state, setState] = useState({ status: "loading" });
+  const [fav, toggleFav] = useFavDriver();
 
   useEffect(() => {
     let alive = true;
@@ -365,7 +399,8 @@ export default function Races() {
 
   return (
     <PageWrap>
-      <section className="mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+        <CheckerMotif />
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />
@@ -402,20 +437,17 @@ export default function Races() {
       <section className="mx-auto max-w-7xl px-5 py-14">
         {state.status === "loading" && <div className="h-96 animate-pulse rounded-xl bg-panel" />}
         {state.status === "error" && (
-          <div className="text-center">
-            <p className="text-xl font-bold">Живые данные сейчас недоступны.</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-6 rounded-md bg-rosso px-6 py-3 text-sm font-black uppercase tracking-widest"
-            >
-              Повторить
-            </button>
-          </div>
+          <EmptyState
+            title="Живые данные сейчас недоступны"
+            note="Jolpica F1 API не ответил — обычно это ненадолго."
+            actionLabel="Повторить"
+            onAction={() => window.location.reload()}
+          />
         )}
         {state.status === "ready" && (
           <>
             {tab === "calendar" && <Calendar races={state.races} />}
-            {tab === "results" && <Results races={state.races} />}
+            {tab === "results" && <Results races={state.races} favId={fav?.id} />}
             {tab === "drivers" && (
               <StandingsTable
                 rows={state.drivers.map((d) => {
@@ -428,8 +460,15 @@ export default function Races() {
                     wins: d.wins,
                     points: d.points,
                     color: teamColor(d.Constructors.at(-1)?.constructorId),
+                    driver: {
+                      id: d.Driver.driverId,
+                      code: d.Driver.code ?? d.Driver.familyName.slice(0, 3).toUpperCase(),
+                      number: d.Driver.permanentNumber,
+                    },
                   };
                 })}
+                fav={fav}
+                onToggleFav={toggleFav}
               />
             )}
             {tab === "teams" && (
