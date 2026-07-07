@@ -8,6 +8,9 @@ import { Countdown, PosChip, raceDate } from "../components/racing";
 import { api } from "../lib/api";
 import { useWeekend, sessionRu, fmtSessionTime } from "../lib/useWeekend";
 import { usePageMeta } from "../lib/usePageMeta";
+import { GaugeMotif } from "../components/motifs";
+import EmptyState from "../components/EmptyState";
+import { loadFav } from "../lib/favorite";
 import { gpRu, countryRu, driverRu, formatDateRu, teamColor, circuitGpRu } from "../lib/i18n";
 
 /* Расписание сессий текущего гоночного уик-энда (появляется только в дни ГП) */
@@ -65,7 +68,12 @@ function StandingsCard({ title, rows, linkTab }) {
       </div>
       <div className="space-y-2">
         {rows.map((row) => (
-          <div key={row.key} className="flex items-center gap-3 rounded-md bg-panel2/60 px-3 py-2">
+          <div
+            key={row.key}
+            className={`flex items-center gap-3 rounded-md px-3 py-2 ${
+              loadFav()?.id === row.key ? "bg-giallo/[0.08]" : "bg-panel2/60"
+            }`}
+          >
             <PosChip position={row.position} />
             <span className="h-6 w-1 rounded-full" style={{ background: row.color }} />
             <span className="min-w-0 flex-1 truncate font-bold uppercase tracking-wide">
@@ -123,7 +131,8 @@ export default function Dashboard() {
 
   return (
     <PageWrap>
-      <section className="mx-auto max-w-7xl px-5 pb-16 pt-32 md:pt-40">
+      <section className="relative mx-auto max-w-7xl px-5 pb-16 pt-32 md:pt-40">
+        <GaugeMotif />
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />
@@ -143,14 +152,13 @@ export default function Dashboard() {
       />
 
       {state.status === "error" && (
-        <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-          <p className="text-xl font-bold">Живые данные сейчас недоступны.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-6 rounded-md bg-rosso px-6 py-3 text-sm font-black uppercase tracking-widest"
-          >
-            Повторить
-          </button>
+        <div className="mx-auto max-w-7xl px-5 py-16">
+          <EmptyState
+            title="Живые данные сейчас недоступны"
+            note="Jolpica F1 API не ответил — обычно это ненадолго."
+            actionLabel="Повторить"
+            onAction={() => window.location.reload()}
+          />
         </div>
       )}
 
@@ -306,6 +314,35 @@ export default function Dashboard() {
                     </div>
                   );
                 })()}
+
+                {/* решётка → финиш: кто отыграл, кто провалился */}
+                <Reveal className="mt-8">
+                  <p className="mb-3 text-[9px] font-bold tracking-[0.35em] text-dim">
+                    РЕШЁТКА → ФИНИШ
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(lastRace.Results ?? [])
+                      .filter((r) => +r.grid > 0)
+                      .map((r) => ({ r, delta: +r.grid - +r.position }))
+                      .sort((a, b) => b.delta - a.delta)
+                      .map(({ r, delta }) => (
+                        <span
+                          key={r.Driver.driverId}
+                          className={`rounded-md px-2.5 py-1.5 font-digits text-xs font-bold ${
+                            delta > 0
+                              ? "bg-giallo/10 text-giallo"
+                              : delta < 0
+                                ? "bg-rosso/10 text-rosso"
+                                : "bg-panel2 text-dim"
+                          }`}
+                          title={`Старт ${r.grid}, финиш ${r.position}`}
+                        >
+                          {r.Driver.code ?? r.Driver.familyName.slice(0, 3).toUpperCase()}{" "}
+                          {r.grid}→{r.position} {delta > 0 ? `▲${delta}` : delta < 0 ? `▼${-delta}` : "="}
+                        </span>
+                      ))}
+                  </div>
+                </Reveal>
               </div>
             </section>
           )}

@@ -5,7 +5,9 @@ import Reaction from "../components/games/Reaction";
 import Quiz from "../components/games/Quiz";
 import PitStop from "../components/games/PitStop";
 import Tracks from "../components/games/Tracks";
+import Achievements from "../components/games/Achievements";
 import { usePageMeta } from "../lib/usePageMeta";
+import { LightsMotif } from "../components/motifs";
 
 const TABS = [
   { id: "reaction", label: "Реакция", sub: "Огни погасли — жми!" },
@@ -24,7 +26,8 @@ export default function Games() {
 
   return (
     <PageWrap>
-      <section className="mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+        <LightsMotif />
         <Reveal>
           <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
             <span className="inline-block h-px w-10 bg-giallo" />
@@ -65,6 +68,7 @@ export default function Games() {
         {tab === "pitstop" && <PitStop />}
         {tab === "quiz" && <Quiz />}
         {tab === "tracks" && <Tracks />}
+        <Achievements key={tab} />
       </section>
     </PageWrap>
   );
