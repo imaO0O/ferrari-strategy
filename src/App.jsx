@@ -20,6 +20,11 @@ const Legends = lazy(() => import("./pages/Legends"));
 const Heritage = lazy(() => import("./pages/Heritage"));
 const Credits = lazy(() => import("./pages/Credits"));
 const About = lazy(() => import("./pages/About"));
+const Live = lazy(() => import("./pages/Live"));
+const Academy = lazy(() => import("./pages/Academy"));
+const Passport = lazy(() => import("./pages/Passport"));
+const DriverProfile = lazy(() => import("./pages/DriverProfile"));
+const TeamProfile = lazy(() => import("./pages/TeamProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -75,6 +80,11 @@ export default function App() {
               <Route path="/heritage" element={<Heritage />} />
               <Route path="/credits" element={<Credits />} />
               <Route path="/about" element={<About />} />
+              <Route path="/live" element={<Live />} />
+              <Route path="/academy" element={<Academy />} />
+              <Route path="/passport" element={<Passport />} />
+              <Route path="/driver/:driverId" element={<DriverProfile />} />
+              <Route path="/team/:constructorId" element={<TeamProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>

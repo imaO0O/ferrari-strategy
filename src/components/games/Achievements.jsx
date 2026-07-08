@@ -53,7 +53,10 @@ export default function Achievements() {
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-2xl font-black uppercase italic">Достижения</h2>
         <span className="font-digits text-sm text-dim">
-          {earnedCount}/{BADGES.length} открыто
+          {earnedCount}/{BADGES.length} открыто ·{" "}
+          <a className="underline decoration-rosso underline-offset-4 transition-colors hover:text-white" href="/passport">
+            паспорт тифози
+          </a>
         </span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

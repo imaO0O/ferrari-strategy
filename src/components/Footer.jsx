@@ -25,6 +25,9 @@ export default function Footer() {
             <li><Link className="transition-colors hover:text-rosso" to="/games">Игры</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/legends">Легенды</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/heritage">История</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/live">Live-центр</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/academy">Академия</Link></li>
+            <li><Link className="transition-colors hover:text-rosso" to="/passport">Паспорт тифози</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/credits">Источники</Link></li>
             <li><Link className="transition-colors hover:text-rosso" to="/about">О проекте</Link></li>
           </ul>
