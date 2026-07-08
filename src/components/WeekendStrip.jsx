@@ -20,7 +20,7 @@ export default function WeekendStrip() {
 
   return (
     <Link
-      to="/dashboard"
+      to="/live"
       className="fixed inset-x-0 top-16 z-40 block bg-giallo py-1.5 text-center text-[11px] font-black uppercase tracking-[0.2em] text-carbon transition-colors hover:bg-white"
     >
       <FlagIcon className="mr-1 inline h-3.5 w-3.5 align-[-2px]" /> {circuitGpRu(circuit)}{" "}

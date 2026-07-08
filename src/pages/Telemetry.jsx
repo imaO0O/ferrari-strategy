@@ -9,7 +9,7 @@ import PitStops from "../components/PitStops";
 import LiveTrackMap from "../components/LiveTrackMap";
 
 /* Погода сессии: последние показания метеостанции */
-function WeatherChips({ sessionKey }) {
+export function WeatherChips({ sessionKey }) {
   const [w, setW] = useState(null);
   useEffect(() => {
     let alive = true;
@@ -221,7 +221,7 @@ function ReplayTower({ drivers, events, t0, duration, lapMarks }) {
 
 /* Live-режим: во время сессии показываем текущую расстановку,
    обновляя её раз в 60 секунд (без кэша) */
-function LiveTower({ sessionKey, drivers }) {
+export function LiveTower({ sessionKey, drivers }) {
   const [order, setOrder] = useState(null);
   const [extra, setExtra] = useState({});
   const [updated, setUpdated] = useState(null);
@@ -328,7 +328,7 @@ function LiveTower({ sessionKey, drivers }) {
   );
 }
 
-function FerrariRadio({ sessionKey, drivers }) {
+export function FerrariRadio({ sessionKey, drivers }) {
   const [clips, setClips] = useState(null);
 
   useEffect(() => {
