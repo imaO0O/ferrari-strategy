@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import PageWrap from "../components/PageWrap";
 import Duel from "../components/Duel";
 import WhatIf from "../components/WhatIf";
+import Simulator from "../components/Simulator";
+import { downloadSeasonIcs } from "../lib/ics";
 import { Reveal, KineticTitle, Marquee } from "../components/ui";
 import { Countdown, PosChip, raceDate, useSort, SortTh } from "../components/racing";
 import { useFavDriver } from "../lib/favorite";
@@ -20,11 +22,34 @@ const TABS = [
   { id: "teams", label: "Конструкторы" },
   { id: "duel", label: "Дуэль" },
   { id: "whatif", label: "Что если" },
+  { id: "sim", label: "Симулятор" },
 ];
 
 /* ── Календарь ─────────────────────────────────────────────── */
 
-function Calendar({ races }) {
+function IcsButton() {
+  const [label, setLabel] = useState("Сезон в мой календарь (.ics)");
+  const onClick = async () => {
+    setLabel("Готовим файл…");
+    try {
+      await downloadSeasonIcs();
+      setLabel("Скачано ✓");
+    } catch {
+      setLabel("Не удалось — позже");
+    }
+    setTimeout(() => setLabel("Сезон в мой календарь (.ics)"), 2500);
+  };
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-md border border-line px-4 py-2 text-xs font-black uppercase tracking-widest text-dim transition-colors hover:border-rosso/60 hover:text-white"
+    >
+      {label}
+    </button>
+  );
+}
+
+function Calendar({ races, isArchive }) {
   const now = Date.now();
   const nextIdx = races.findIndex((r) => raceDate(r).getTime() > now);
   const done = nextIdx === -1 ? races.length : nextIdx;
@@ -32,9 +57,12 @@ function Calendar({ races }) {
   return (
     <>
       <Reveal className="mb-10">
-        <p className="text-sm font-bold uppercase tracking-widest text-dim">
-          Этап {Math.min(done + 1, races.length)} из {races.length}
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-bold uppercase tracking-widest text-dim">
+            Этап {Math.min(done + 1, races.length)} из {races.length}
+          </p>
+          {!isArchive && <IcsButton />}
+        </div>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-panel2">
           <div
             className="h-full rounded-full bg-rosso transition-all"
@@ -102,7 +130,7 @@ function Calendar({ races }) {
 
 /* ── Результаты этапа ──────────────────────────────────────── */
 
-function Results({ races, favId }) {
+function Results({ races, favId, season = "current" }) {
   const now = Date.now();
   const finished = useMemo(() => races.filter((r) => raceDate(r).getTime() < now), [races, now]);
   const [round, setRound] = useState(finished.at(-1)?.round ?? null);
@@ -110,10 +138,15 @@ function Results({ races, favId }) {
   const [data, setData] = useState({ status: "idle" });
 
   useEffect(() => {
+    setRound(finished.at(-1)?.round ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [season]);
+
+  useEffect(() => {
     if (!round) return;
     let alive = true;
     setData({ status: "loading" });
-    (mode === "race" ? api.raceResults(round) : api.qualifyingResults(round))
+    (mode === "race" ? api.raceResults(round, season) : api.qualifyingResults(round, season))
       .then((d) => alive && setData({ status: "ready", race: d.RaceTable.Races?.[0] ?? null }))
       .catch((e) => alive && setData({ status: "error", message: e.message }));
     return () => {
@@ -346,7 +379,13 @@ function StandingsTable({ rows, fav, onToggleFav }) {
                     className="mr-3 inline-block h-4 w-1 rounded-full align-middle"
                     style={{ background: row.color }}
                   />
-                  {row.name}
+                  {row.href ? (
+                    <Link className="transition-colors hover:text-rosso" to={row.href}>
+                      {row.name}
+                    </Link>
+                  ) : (
+                    row.name
+                  )}
                   {row.sub && <span className="ml-2 text-xs font-normal text-dim">{row.sub}</span>}
                 </td>
                 <td className="px-4 py-3 font-digits text-dim">{row.wins}</td>
@@ -369,17 +408,28 @@ export default function Races() {
   );
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "calendar";
+  // «машина времени»: ?season=1976 переключает весь раздел на архивный сезон
+  const season = /^\d{4}$/.test(params.get("season") ?? "") ? params.get("season") : "current";
+  const isArchive = season !== "current";
   const [state, setState] = useState({ status: "loading" });
   const [fav, toggleFav] = useFavDriver();
 
+  const go = (next) => {
+    const merged = { tab, ...(isArchive && { season }), ...next };
+    if (merged.season === "current") delete merged.season;
+    if (merged.tab === "sim" && merged.season) merged.tab = "calendar"; // симулятор только для текущего
+    setParams(merged);
+  };
+
   useEffect(() => {
     let alive = true;
+    setState({ status: "loading" });
     (async () => {
       try {
         const [sched, ds, cs] = await Promise.all([
-          api.schedule(),
-          api.driverStandings(),
-          api.constructorStandings(),
+          api.schedule(season),
+          api.driverStandings(season),
+          api.constructorStandings(season),
         ]);
         if (!alive) return;
         setState({
@@ -397,7 +447,7 @@ export default function Races() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [season]);
 
   return (
     <PageWrap>
@@ -413,12 +463,51 @@ export default function Races() {
           <KineticTitle text="ГОНКИ" />
         </h1>
 
+        {/* машина времени: любой сезон с 1950 года */}
+        <Reveal>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <label className="text-[10px] font-bold tracking-[0.35em] text-dim" htmlFor="season">
+              МАШИНА ВРЕМЕНИ
+            </label>
+            <select
+              id="season"
+              value={season}
+              onChange={(e) => go({ season: e.target.value })}
+              className="rounded-md border border-line bg-panel px-3 py-2 font-digits text-sm font-bold outline-none transition-colors focus:border-rosso"
+            >
+              <option value="current">Текущий сезон</option>
+              {Array.from({ length: new Date().getFullYear() - 1950 + 1 }, (_, i) => {
+                const y = new Date().getFullYear() - i;
+                return (
+                  <option key={y} value={String(y)}>
+                    {y}
+                  </option>
+                );
+              })}
+            </select>
+            <span className="hidden text-[10px] font-bold tracking-[0.25em] text-dim sm:inline">
+              ВЕЛИКИЕ СЕЗОНЫ FERRARI:
+            </span>
+            {["1975", "2000", "2004", "2007", "2008"].map((y) => (
+              <button
+                key={y}
+                onClick={() => go({ season: y })}
+                className={`rounded-md px-2.5 py-1.5 font-digits text-xs font-bold transition-colors ${
+                  season === y ? "bg-giallo text-carbon" : "bg-panel2 text-dim hover:text-giallo"
+                }`}
+              >
+                {y}
+              </button>
+            ))}
+          </div>
+        </Reveal>
+
         {/* вкладки */}
-        <div className="mt-10 flex flex-wrap gap-2">
-          {TABS.map(({ id, label }) => (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {TABS.filter(({ id }) => id !== "sim" || !isArchive).map(({ id, label }) => (
             <button
               key={id}
-              onClick={() => setParams({ tab: id })}
+              onClick={() => go({ tab: id })}
               className={`rounded-md px-4 py-2.5 text-sm font-black uppercase tracking-widest transition-colors ${
                 tab === id ? "bg-rosso text-white" : "bg-panel text-dim hover:text-white"
               }`}
@@ -448,8 +537,10 @@ export default function Races() {
         )}
         {state.status === "ready" && (
           <>
-            {tab === "calendar" && <Calendar races={state.races} />}
-            {tab === "results" && <Results races={state.races} favId={fav?.id} />}
+            {tab === "calendar" && <Calendar races={state.races} isArchive={isArchive} />}
+            {tab === "results" && (
+              <Results races={state.races} favId={fav?.id} season={season} />
+            )}
             {tab === "drivers" && (
               <StandingsTable
                 rows={state.drivers.map((d) => {
@@ -462,6 +553,7 @@ export default function Races() {
                     wins: d.wins,
                     points: d.points,
                     color: teamColor(d.Constructors.at(-1)?.constructorId),
+                    href: `/driver/${d.Driver.driverId}`,
                     driver: {
                       id: d.Driver.driverId,
                       code: d.Driver.code ?? d.Driver.familyName.slice(0, 3).toUpperCase(),
@@ -482,11 +574,17 @@ export default function Races() {
                   wins: t.wins,
                   points: t.points,
                   color: teamColor(t.Constructor.constructorId),
+                  href: `/team/${t.Constructor.constructorId}`,
                 }))}
               />
             )}
-            {tab === "duel" && state.drivers.length >= 2 && <Duel standings={state.drivers} />}
-            {tab === "whatif" && <WhatIf officialStandings={state.drivers} />}
+            {tab === "duel" && state.drivers.length >= 2 && (
+              <Duel standings={state.drivers} season={season} />
+            )}
+            {tab === "whatif" && <WhatIf officialStandings={state.drivers} season={season} />}
+            {tab === "sim" && !isArchive && (
+              <Simulator races={state.races} standings={state.drivers} />
+            )}
             <DataNote updatedAt={state.loadedAt} />
           </>
         )}

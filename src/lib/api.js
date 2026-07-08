@@ -25,25 +25,51 @@ async function getJSON(path) {
 }
 
 export const api = {
-  constructorStandings: () => getJSON("/current/constructorstandings.json"),
-  driverStandings: () => getJSON("/current/driverstandings.json"),
-  schedule: () => getJSON("/current.json?limit=30"),
+  // season: "current" или год ("1976") — «машина времени» работает с 1950-го
+  constructorStandings: (season = "current") =>
+    getJSON(`/${season}/constructorstandings.json`),
+  driverStandings: (season = "current") => getJSON(`/${season}/driverstandings.json`),
+  schedule: (season = "current") => getJSON(`/${season}.json?limit=30`),
   ferrariResults: () => getJSON("/current/constructors/ferrari/results.json?limit=100"),
   // MRData.total = number of Ferrari wins at this circuit, all time
   ferrariWinsAtCircuit: (circuitId) =>
     getJSON(`/circuits/${circuitId}/constructors/ferrari/results/1.json?limit=1`),
   // MRData.total = Ferrari wins, all time
   ferrariAllWins: () => getJSON("/constructors/ferrari/results/1.json?limit=1"),
-  raceResults: (round) => getJSON(`/current/${round}/results.json?limit=30`),
-  qualifyingResults: (round) => getJSON(`/current/${round}/qualifying.json?limit=30`),
+  raceResults: (round, season = "current") =>
+    getJSON(`/${season}/${round}/results.json?limit=30`),
+  qualifyingResults: (round, season = "current") =>
+    getJSON(`/${season}/${round}/qualifying.json?limit=30`),
   lastRaceResults: () => getJSON("/current/last/results.json?limit=30"),
-  driverResults: (driverId) => getJSON(`/current/drivers/${driverId}/results.json?limit=100`),
+  driverResults: (driverId, season = "current") =>
+    getJSON(`/${season}/drivers/${driverId}/results.json?limit=100`),
   constructorResults: (constructorId) =>
     getJSON(`/current/constructors/${constructorId}/results.json?limit=100`),
   constructorSprints: (constructorId) =>
     getJSON(`/current/constructors/${constructorId}/sprint.json?limit=100`),
   // все результаты сезона одним запросом — для пересчёта очковых систем
-  seasonResults: () => getJSON("/current/results.json?limit=1000"),
+  seasonResults: (season = "current") => getJSON(`/${season}/results.json?limit=1000`),
+  // энциклопедия: вся карьера одним-двумя запросами
+  // (standings без сезона Jolpica не отдаёт — агрегируем из результатов)
+  // Jolpica отдаёт максимум 100 строк за страницу — листаем с паузой,
+  // чтобы не упереться в рейт-лимит (у Ferrari ~11 страниц истории)
+  careerResults: async (kind, id) => {
+    // total считает result-строки (у команды по две машины в гонке),
+    // поэтому у Ferrari это ~2100 — потолка должно хватить на всю историю
+    const races = [];
+    let offset = 0;
+    let total = Infinity;
+    while (races.length < total && offset < 2600) {
+      const page = await getJSON(`/${kind}/${id}/results.json?limit=100&offset=${offset}`);
+      total = +page.total;
+      const rows = page.RaceTable.Races ?? [];
+      if (!rows.length) break;
+      races.push(...rows);
+      offset += 100;
+      if (offset < total) await new Promise((r) => setTimeout(r, 250));
+    }
+    return races;
+  },
 };
 
 // The last Ferrari constructors' title was clinched at the 2008 Brazilian GP.

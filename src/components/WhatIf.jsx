@@ -8,20 +8,21 @@ import { POINT_SYSTEMS as SYSTEMS, recomputeStandings } from "../lib/points";
 /* «Что если»: пересчёт личного зачёта по очковым системам разных эпох.
    Считаются только гонки (спринтов в старых системах не было). */
 
-export default function WhatIf({ officialStandings }) {
+export default function WhatIf({ officialStandings, season = "current" }) {
   const [data, setData] = useState({ status: "loading" });
   const [systemId, setSystemId] = useState("classic");
 
   useEffect(() => {
     let alive = true;
+    setData({ status: "loading" });
     api
-      .seasonResults()
+      .seasonResults(season)
       .then((d) => alive && setData({ status: "ready", races: d.RaceTable.Races ?? [] }))
       .catch((e) => alive && setData({ status: "error", message: e.message }));
     return () => {
       alive = false;
     };
-  }, []);
+  }, [season]);
 
   const system = SYSTEMS.find((s) => s.id === systemId);
 

@@ -111,7 +111,7 @@ function Form5({ last5, color }) {
   );
 }
 
-export default function Duel({ standings }) {
+export default function Duel({ standings, season = "current" }) {
   const ids = standings.map((s) => s.Driver.driverId);
   const [aId, setAId] = useState(ids.includes("leclerc") ? "leclerc" : ids[0]);
   const [bId, setBId] = useState(ids.includes("hamilton") ? "hamilton" : ids[1]);
@@ -122,13 +122,13 @@ export default function Duel({ standings }) {
   useEffect(() => {
     let alive = true;
     setData({ status: "loading" });
-    Promise.all([api.driverResults(aId), api.driverResults(bId)])
+    Promise.all([api.driverResults(aId, season), api.driverResults(bId, season)])
       .then(([ra, rb]) => alive && setData({ status: "ready", a: computeStats(ra), b: computeStats(rb) }))
       .catch((e) => alive && setData({ status: "error", message: e.message }));
     return () => {
       alive = false;
     };
-  }, [aId, bId]);
+  }, [aId, bId, season]);
 
   const [sa, sb] = [standingOf(aId), standingOf(bId)];
   const [na, nb] = [sa && driverRu(sa.Driver), sb && driverRu(sb.Driver)];
