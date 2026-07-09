@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import PageWrap from "../components/PageWrap";
-import { Reveal, KineticTitle, Marquee } from "../components/ui";
+import { Marquee, PageHead } from "../components/ui";
 import Reaction from "../components/games/Reaction";
 import Quiz from "../components/games/Quiz";
 import PitStop from "../components/games/PitStop";
@@ -26,44 +26,38 @@ export default function Games() {
 
   return (
     <PageWrap>
-      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+      <PageHead
+        kicker="ЧЕТЫРЕ ИСПЫТАНИЯ · РЕКОРДЫ ХРАНЯТСЯ В ТВОЁМ БРАУЗЕРЕ"
+        title="Игры"
+      >
         <LightsMotif />
-        <Reveal>
-          <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
-            <span className="inline-block h-px w-10 bg-giallo" />
-            ЧЕТЫРЕ ИСПЫТАНИЯ · РЕКОРДЫ ХРАНЯТСЯ В ТВОЁМ БРАУЗЕРЕ
-          </p>
-        </Reveal>
-        <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
-          <KineticTitle text="ИГРЫ" />
-        </h1>
-
-        <div className="mt-10 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-1.5">
           {TABS.map(({ id, label, sub }) => (
             <button
               key={id}
               onClick={() => setParams({ tab: id })}
-              className={`rounded-md px-4 py-2.5 text-left transition-colors ${
-                tab === id ? "bg-rosso text-white" : "bg-panel text-dim hover:text-white"
+              aria-pressed={tab === id}
+              className={`rounded-lg px-4 py-2 text-left transition-colors ${
+                tab === id ? "bg-rosso text-white" : "border border-line bg-panel/60 text-dim hover:text-white"
               }`}
             >
-              <span className="block text-sm font-black uppercase tracking-widest">{label}</span>
-              <span className={`block text-[10px] ${tab === id ? "text-white/70" : "text-dim/70"}`}>
+              <span className="block text-xs font-black uppercase tracking-[0.15em]">{label}</span>
+              <span className={`block text-[10px] ${tab === id ? "text-white/70" : "text-dim"}`}>
                 {sub}
               </span>
             </button>
           ))}
         </div>
-      </section>
+      </PageHead>
 
       <Marquee
         items={["IT'S LIGHTS OUT", "✦", "AND AWAY WE GO", "✦", "FERRARI STRATEGY", "✦"]}
         speed={24}
-        className="-rotate-1 bg-rosso py-3 text-xl font-black uppercase italic text-carbon"
+        className="mt-6 -rotate-1 bg-rosso py-2.5 text-lg font-black uppercase italic text-carbon"
         itemClassName="mx-4"
       />
 
-      <section className="mx-auto max-w-7xl px-5 py-14">
+      <section className="mx-auto max-w-7xl px-5 py-12">
         {tab === "reaction" && <Reaction />}
         {tab === "pitstop" && <PitStop />}
         {tab === "quiz" && <Quiz />}

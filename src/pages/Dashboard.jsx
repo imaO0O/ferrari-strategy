@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import PageWrap from "../components/PageWrap";
 import OnThisDay from "../components/OnThisDay";
 import Predictions from "../components/Predictions";
-import { Reveal, KineticTitle, SectionTitle, Marquee } from "../components/ui";
+import { Reveal, SectionTitle, PageHead } from "../components/ui";
 import { Countdown, PosChip, raceDate } from "../components/racing";
 import { api } from "../lib/api";
 import { useWeekend, sessionRu, fmtSessionTime } from "../lib/useWeekend";
@@ -133,28 +133,16 @@ export default function Dashboard() {
 
   return (
     <PageWrap>
-      <section className="relative mx-auto max-w-7xl px-5 pb-16 pt-32 md:pt-40">
+      <PageHead
+        kicker={`СЕЗОН ${season ?? "…"} · ЖИВЫЕ ДАННЫЕ`}
+        title="Дашборд"
+        lead="Обзор сезона: следующая гонка, зачёты, подиум последней гонки, прогнозы и расписание уик-энда — на одном экране."
+      >
         <GaugeMotif />
-        <Reveal>
-          <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
-            <span className="inline-block h-px w-10 bg-giallo" />
-            СЕЗОН {season ?? "…"} · ЖИВЫЕ ДАННЫЕ
-          </p>
-        </Reveal>
-        <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
-          <KineticTitle text="ДАШБОРД" />
-        </h1>
-      </section>
-
-      <Marquee
-        items={["FERRARI STRATEGY", "✦", "LIVE", "✦", "FORMULA 1", "✦"]}
-        speed={24}
-        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
-        itemClassName="mx-4"
-      />
+      </PageHead>
 
       {state.status === "error" && (
-        <div className="mx-auto max-w-7xl px-5 py-16">
+        <div className="mx-auto max-w-7xl px-5 py-10">
           <EmptyState
             title="Живые данные сейчас недоступны"
             note="Jolpica F1 API не ответил — обычно это ненадолго."
@@ -165,9 +153,9 @@ export default function Dashboard() {
       )}
 
       {state.status === "loading" && (
-        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-16 md:grid-cols-2">
+        <div className="mx-auto grid max-w-7xl gap-6 px-5 py-8 md:grid-cols-2">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-72 animate-pulse rounded-xl bg-panel" />
+            <div key={i} className="skeleton h-64" />
           ))}
         </div>
       )}
@@ -175,7 +163,7 @@ export default function Dashboard() {
       {state.status === "ready" && (
         <>
           {/* СЛЕДУЮЩАЯ ГОНКА */}
-          <section className="mx-auto max-w-7xl px-5 py-16">
+          <section className="mx-auto max-w-7xl px-5 pb-14 pt-6">
             <WeekendSchedule />
             {nextRace ? (
               <Reveal className="rounded-xl border border-line bg-panel p-8 md:p-10">

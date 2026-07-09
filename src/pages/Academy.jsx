@@ -1,5 +1,5 @@
 import PageWrap from "../components/PageWrap";
-import { Reveal, KineticTitle, Marquee, SectionTitle } from "../components/ui";
+import { Reveal, PageHead, SectionTitle } from "../components/ui";
 import { TOPICS, GLOSSARY } from "../data/academy";
 import { usePageMeta } from "../lib/usePageMeta";
 import { GradIcon } from "../components/icons";
@@ -22,39 +22,21 @@ export default function Academy() {
 
   return (
     <PageWrap>
-      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+      <PageHead
+        kicker="ФОРМУЛА-1 ЗА 15 МИНУТ · ДЛЯ БУДУЩИХ ТИФОЗИ"
+        title="Академия"
+        lead="Семь коротких уроков — и трансляция перестанет быть набором загадочных слов. Подсаживаешь друга на гонки? Отправь ему эту страницу."
+      >
         <div className="pointer-events-none absolute right-0 top-24 hidden text-line opacity-60 md:block">
           <GradIcon className="h-36 w-36" />
         </div>
-        <Reveal>
-          <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
-            <span className="inline-block h-px w-10 bg-giallo" />
-            ФОРМУЛА-1 ЗА 15 МИНУТ · ДЛЯ БУДУЩИХ ТИФОЗИ
-          </p>
-        </Reveal>
-        <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
-          <KineticTitle text="АКАДЕМИЯ" />
-        </h1>
-        <Reveal delay={0.4}>
-          <p className="mt-6 max-w-xl text-lg text-neutral-200">
-            Семь коротких уроков — и трансляция перестанет быть набором загадочных слов.
-            Подсаживаешь друга на гонки? Отправь ему эту страницу.
-          </p>
-        </Reveal>
-      </section>
+      </PageHead>
 
-      <Marquee
-        items={["LEZIONE UNO", "✦", "FORMULA 1", "✦", "FERRARI STRATEGY", "✦"]}
-        speed={24}
-        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
-        itemClassName="mx-4"
-      />
-
-      <section className="mx-auto max-w-7xl px-5 py-14">
-        <div className="grid gap-6 md:grid-cols-2">
+      <section className="mx-auto max-w-7xl px-5 py-10">
+        <div className="grid gap-5 md:grid-cols-2">
           {TOPICS.map((t, i) => (
             <Reveal key={t.id} delay={(i % 2) * 0.07}>
-              <div className="h-full rounded-xl border border-line bg-panel p-6">
+              <div className="card card-hover h-full p-6">
                 <p className="font-digits text-xs text-rosso">УРОК {i + 1}</p>
                 <h2 className="mt-1 text-2xl font-black uppercase italic leading-tight">
                   {t.title}

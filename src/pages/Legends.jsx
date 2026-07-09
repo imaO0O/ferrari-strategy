@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PageWrap from "../components/PageWrap";
-import { Reveal, ImageReveal, KineticTitle, Marquee, EASE } from "../components/ui";
+import { Reveal, ImageReveal, PageHead, TabBar, EASE } from "../components/ui";
 import { commonsFile } from "../lib/images";
 import { LEGENDS } from "../data/legends";
 import { GARAGE } from "../data/garage";
@@ -168,52 +168,25 @@ export default function Legends() {
 
   return (
     <PageWrap>
-      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
-        <StripesMotif />
-        <Reveal>
-          <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
-            <span className="inline-block h-px w-10 bg-giallo" />
-            {champions} ЧЕМПИОНОВ МИРА · {LEGENDS.length} ДОСЬЕ · {GARAGE.length} БОЛИДОВ
-          </p>
-        </Reveal>
-        <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
-          <KineticTitle text="ЛЕГЕНДЫ" />
-        </h1>
-        <Reveal delay={0.4}>
-          <p className="mt-6 max-w-xl text-lg text-neutral-200">
-            {tab === "pilots"
-              ? "Все чемпионы мира за рулём Ferrari — и пилоты, без которых историю Скудерии не рассказать. Нажми на карточку, чтобы открыть досье."
-              : "Машины, которые сделали Ferrari — Ferrari: от самой первой 125 S до современных гибридов."}
-          </p>
-        </Reveal>
-
-        <div className="mt-10 flex flex-wrap gap-2">
-          {TABS.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setParams({ tab: id })}
-              className={`rounded-md px-4 py-2.5 text-sm font-black uppercase tracking-widest transition-colors ${
-                tab === id ? "bg-rosso text-white" : "bg-panel text-dim hover:text-white"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <Marquee
-        items={
+      <PageHead
+        kicker={`${champions} ЧЕМПИОНОВ МИРА · ${LEGENDS.length} ДОСЬЕ · ${GARAGE.length} БОЛИДОВ`}
+        title="Легенды"
+        lead={
           tab === "pilots"
-            ? ["I PILOTI", "✦", "DELLA SCUDERIA", "✦", "FERRARI STRATEGY", "✦"]
-            : ["LE MACCHINE", "✦", "DELLA SCUDERIA", "✦", "FERRARI STRATEGY", "✦"]
+            ? "Все чемпионы мира за рулём Ferrari — и пилоты, без которых историю Скудерии не рассказать. Нажми на карточку, чтобы открыть досье."
+            : "Машины, которые сделали Ferrari — Ferrari: от самой первой 125 S до современных гибридов."
         }
-        speed={24}
-        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
-        itemClassName="mx-4"
-      />
+      >
+        <StripesMotif />
+        <TabBar
+          className="mt-6"
+          tabs={TABS}
+          active={tab}
+          onSelect={(id) => setParams({ tab: id })}
+        />
+      </PageHead>
 
-      <section className="mx-auto max-w-7xl px-5 py-14">
+      <section className="mx-auto max-w-7xl px-5 py-12">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {tab === "pilots" &&
             LEGENDS.map((legend, i) => (

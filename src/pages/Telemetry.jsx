@@ -41,7 +41,7 @@ export function WeatherChips({ sessionKey }) {
     </div>
   );
 }
-import { Reveal, KineticTitle, Marquee, SectionTitle, EASE } from "../components/ui";
+import { Reveal, PageHead, SectionTitle, EASE } from "../components/ui";
 import { of1 } from "../lib/openf1";
 import { circuitGpRu } from "../lib/i18n";
 import { usePageMeta } from "../lib/usePageMeta";
@@ -501,60 +501,42 @@ export default function Telemetry() {
 
   return (
     <PageWrap>
-      <section className="relative mx-auto max-w-7xl px-5 pb-10 pt-32 md:pt-40">
+      <PageHead
+        kicker="БРАУЗЕРНЫЙ РЕПЛЕЙ ГОНОК · ДАННЫЕ OPENF1"
+        title="Телеметрия"
+        right={
+          sessions && (
+            <select
+              id="race-session"
+              aria-label="Выбор гонки"
+              value={sessionKey ?? ""}
+              onChange={(e) => setSessionKey(+e.target.value)}
+              className="rounded-lg border border-line bg-panel px-3 py-2 text-sm font-bold uppercase tracking-wide outline-none transition-colors focus:border-rosso"
+            >
+              {[...sessions].reverse().map((s) => {
+                const live =
+                  Date.parse(s.date_start) <= Date.now() && Date.now() <= Date.parse(s.date_end);
+                return (
+                  <option key={s.session_key} value={s.session_key}>
+                    {circuitGpRu(s.circuit_short_name)} · {sessionDateRu(s)}
+                    {live ? " · LIVE" : ""}
+                  </option>
+                );
+              })}
+            </select>
+          )
+        }
+      >
         <WaveMotif />
-        <Reveal>
-          <p className="mb-3 flex items-center gap-3 text-[10px] font-bold tracking-[0.4em] text-giallo">
-            <span className="inline-block h-px w-10 bg-giallo" />
-            БРАУЗЕРНЫЙ РЕПЛЕЙ ГОНОК · ДАННЫЕ OPENF1
-          </p>
-        </Reveal>
-        <h1 className="text-[13vw] font-black uppercase italic leading-[0.85] tracking-tight md:text-[8rem]">
-          <KineticTitle text="ТЕЛЕМЕТРИЯ" />
-        </h1>
-
-        {sessions && (
-          <Reveal delay={0.3}>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <label
-                className="text-sm font-bold uppercase tracking-widest text-dim"
-                htmlFor="race-session"
-              >
-                Гонка
-              </label>
-              <select
-                id="race-session"
-                value={sessionKey ?? ""}
-                onChange={(e) => setSessionKey(+e.target.value)}
-                className="rounded-md border border-line bg-panel px-4 py-2.5 font-bold uppercase tracking-wide outline-none transition-colors focus:border-rosso"
-              >
-                {[...sessions].reverse().map((s) => {
-                  const live =
-                    Date.parse(s.date_start) <= Date.now() &&
-                    Date.now() <= Date.parse(s.date_end);
-                  return (
-                    <option key={s.session_key} value={s.session_key}>
-                      {circuitGpRu(s.circuit_short_name)} · {sessionDateRu(s)}
-                      {live ? " · LIVE" : ""}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            {sessionKey && <WeatherChips sessionKey={sessionKey} />}
+        {sessions && sessionKey && (
+          <Reveal delay={0.05}>
+            <WeatherChips sessionKey={sessionKey} />
           </Reveal>
         )}
-      </section>
+      </PageHead>
 
-      <Marquee
-        items={["LIVE TIMING", "✦", "BOX BOX", "✦", "FERRARI STRATEGY", "✦"]}
-        speed={24}
-        className="border-y border-line bg-panel py-2.5 text-sm font-bold uppercase tracking-wider text-dim"
-        itemClassName="mx-4"
-      />
-
-      <section className="mx-auto max-w-7xl px-5 py-14">
-        {state.status === "loading" && <div className="h-96 animate-pulse rounded-xl bg-panel" />}
+      <section className="mx-auto max-w-7xl px-5 py-10">
+        {state.status === "loading" && <div className="skeleton h-96" />}
         {state.status === "error" && (
           <EmptyState
             title="Телеметрия сейчас недоступна"
