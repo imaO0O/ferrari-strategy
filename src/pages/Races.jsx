@@ -109,7 +109,13 @@ function Calendar({ races, isArchive }) {
                   {gpRu(race.raceName)}
                 </h3>
                 <p className="mt-1 text-sm text-dim">
-                  {race.Circuit.circuitName} · {countryRu(race.Circuit.Location.country)}
+                  <Link
+                    to={`/circuit/${race.Circuit.circuitId}`}
+                    className="transition-colors hover:text-rosso"
+                  >
+                    {race.Circuit.circuitName}
+                  </Link>{" "}
+                  · {countryRu(race.Circuit.Location.country)}
                 </p>
                 <p className="mt-2 text-xs font-semibold text-dim">
                   {formatDateRu(race.date, race.time)}

@@ -36,6 +36,9 @@ export const api = {
     getJSON(`/circuits/${circuitId}/constructors/ferrari/results/1.json?limit=1`),
   // MRData.total = Ferrari wins, all time
   ferrariAllWins: () => getJSON("/constructors/ferrari/results/1.json?limit=1"),
+  // энциклопедия трасс: информация о трассе и все её победители
+  circuitInfo: (circuitId) => getJSON(`/circuits/${circuitId}.json`),
+  circuitWinners: (circuitId) => getJSON(`/circuits/${circuitId}/results/1.json?limit=100`),
   raceResults: (round, season = "current") =>
     getJSON(`/${season}/${round}/results.json?limit=30`),
   qualifyingResults: (round, season = "current") =>

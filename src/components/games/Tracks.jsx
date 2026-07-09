@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Reveal, EASE } from "../ui";
 import ShareButton from "./ShareButton";
 import DownloadCardButton from "./DownloadCardButton";
 import { TRACKS } from "../../data/tracks";
+import { circuitIdByOpenF1 } from "../../data/circuits";
 
 /* «Угадай трассу»: показываем реальный GPS-контур круга (данные OpenF1) —
    нужно узнать Гран-при. 10 раундов, варианты — 4. */
@@ -190,6 +192,17 @@ export default function Tracks() {
               <p className="text-sm text-dim">
                 Это <span className="font-bold text-white">{round.track.gp}</span> —{" "}
                 {round.track.circuit}.
+                {circuitIdByOpenF1[round.track.id] && (
+                  <>
+                    {" "}
+                    <Link
+                      to={`/circuit/${circuitIdByOpenF1[round.track.id]}`}
+                      className="text-white underline decoration-rosso underline-offset-4"
+                    >
+                      Открыть трассу
+                    </Link>
+                  </>
+                )}
               </p>
               <button
                 onClick={next}
