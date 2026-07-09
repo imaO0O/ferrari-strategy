@@ -1,5 +1,7 @@
 # Ferrari Strategy 🏎️
 
+[![CI](https://github.com/imaO0O/ferrari-strategy/actions/workflows/ci.yml/badge.svg)](https://github.com/imaO0O/ferrari-strategy/actions/workflows/ci.yml)
+
 **Разработка: [imaO0O](https://github.com/imaO0O)**
 
 Неофициальный некоммерческий фан-сайт о Формуле-1 в стиле Ferrari.
