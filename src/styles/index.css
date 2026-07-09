@@ -132,9 +132,46 @@ img {
   cursor: none;
 }
 
+/* Keyboard focus — always visible, even when the custom cursor hides
+   the pointer. Recruiters and screen-reader users rely on this. */
+:focus-visible {
+  outline: 2px solid var(--color-rosso);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Skip-to-content link: hidden until focused via Tab */
+.skip-link {
+  position: fixed;
+  left: 50%;
+  top: 0;
+  z-index: 200;
+  transform: translate(-50%, -130%);
+  background: var(--color-rosso);
+  color: #fff;
+  padding: 0.6rem 1.4rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-radius: 0 0 0.5rem 0.5rem;
+  transition: transform 0.2s ease;
+}
+.skip-link:focus {
+  transform: translate(-50%, 0);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* Полностью гасим декоративное движение */
   .marquee-track,
   .ken-burns {
     animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }

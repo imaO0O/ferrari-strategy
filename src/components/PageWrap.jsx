@@ -23,6 +23,9 @@ export default function PageWrap({ children }) {
         />
       ))}
       <motion.main
+        id="main"
+        tabIndex={-1}
+        className="outline-none"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, transition: { duration: 0.2 } }}

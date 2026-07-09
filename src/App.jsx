@@ -25,6 +25,7 @@ const Academy = lazy(() => import("./pages/Academy"));
 const Passport = lazy(() => import("./pages/Passport"));
 const DriverProfile = lazy(() => import("./pages/DriverProfile"));
 const TeamProfile = lazy(() => import("./pages/TeamProfile"));
+const CircuitProfile = lazy(() => import("./pages/CircuitProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -59,11 +60,14 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
+      <a href="#main" className="skip-link">
+        К основному содержимому
+      </a>
       <StartLights />
       <CustomCursor />
       <ScrollProgress />
       {/* лёгкое «киношное» зерно поверх всего */}
-      <div className="grain pointer-events-none fixed inset-0 z-[85] opacity-[0.05]" />
+      <div aria-hidden className="grain pointer-events-none fixed inset-0 z-[85] opacity-[0.05]" />
       <Navbar />
       <WeekendStrip />
       <ErrorBoundary resetKey={location.pathname}>
@@ -85,6 +89,7 @@ export default function App() {
               <Route path="/passport" element={<Passport />} />
               <Route path="/driver/:driverId" element={<DriverProfile />} />
               <Route path="/team/:constructorId" element={<TeamProfile />} />
+              <Route path="/circuit/:circuitId" element={<CircuitProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>

@@ -103,6 +103,8 @@ export default function LapCompare({ laps, drivers, finishOrder }) {
             ref={svgRef}
             viewBox={`0 0 ${W} ${H}`}
             className="w-full"
+            role="img"
+            aria-label={`Сравнение времён кругов: ${drivers[a]?.acronym ?? a} против ${drivers[b]?.acronym ?? b}`}
             onMouseMove={onMove}
             onMouseLeave={() => setHover(null)}
           >

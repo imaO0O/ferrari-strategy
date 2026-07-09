@@ -33,10 +33,12 @@ export default function CustomCursor() {
   return (
     <>
       <motion.div
+        aria-hidden
         className="pointer-events-none fixed left-0 top-0 z-[96] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rosso"
         style={{ x, y }}
       />
       <motion.div
+        aria-hidden
         className="pointer-events-none fixed left-0 top-0 z-[95] h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/70 mix-blend-difference"
         style={{ x: ringX, y: ringY }}
         animate={{ scale: hot ? 2 : 1, opacity: hot ? 0.9 : 0.6 }}
