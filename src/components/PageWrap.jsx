@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 
-const PANELS = ["bg-rosso-deep", "bg-rosso", "bg-carbon"];
+const PANELS = ["bg-rosso", "bg-carbon"];
 
-/* Route transition: staggered vertical panels sweep over the page
-   (covering on exit, revealing on enter), landonorris.com-style. */
+/* Route transition: two panels sweep over the page — snappier than the
+   old three-panel version so navigation feels instant, not ceremonial. */
 export default function PageWrap({ children }) {
   return (
     <>
@@ -16,8 +16,8 @@ export default function PageWrap({ children }) {
           animate={{ scaleY: 0, originY: 0 }}
           exit={{ scaleY: 1, originY: 1 }}
           transition={{
-            duration: 0.55,
-            delay: i * 0.09,
+            duration: 0.42,
+            delay: i * 0.07,
             ease: [0.76, 0, 0.24, 1],
           }}
         />
@@ -26,10 +26,10 @@ export default function PageWrap({ children }) {
         id="main"
         tabIndex={-1}
         className="outline-none"
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, transition: { duration: 0.2 } }}
-        transition={{ duration: 0.6, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        exit={{ opacity: 0, transition: { duration: 0.15 } }}
+        transition={{ duration: 0.45, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
       >
         {children}
       </motion.main>

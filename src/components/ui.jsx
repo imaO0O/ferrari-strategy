@@ -3,15 +3,15 @@ import { motion, useInView, animate } from "framer-motion";
 
 export const EASE = [0.22, 1, 0.36, 1];
 
-/* Fade-and-rise on scroll into view */
-export function Reveal({ children, delay = 0, y = 28, className = "", once = true }) {
+/* Fade-and-rise on scroll into view — snappier than before */
+export function Reveal({ children, delay = 0, y = 20, className = "", once = true }) {
   return (
     <motion.div
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, margin: "-60px" }}
-      transition={{ duration: 0.7, delay, ease: EASE }}
+      viewport={{ once, margin: "-50px" }}
+      transition={{ duration: 0.5, delay, ease: EASE }}
     >
       {children}
     </motion.div>
@@ -127,14 +127,85 @@ export function SectionTitle({ kicker, title, className = "" }) {
   return (
     <Reveal className={className}>
       {kicker && (
-        <p className="mb-2 flex items-center gap-3 font-digits text-xs tracking-[0.35em] text-rosso">
-          <span className="inline-block h-px w-10 bg-rosso" />
+        <p className="mb-2 flex items-center gap-3 font-digits text-[11px] tracking-[0.3em] text-rosso">
+          <span className="inline-block h-px w-8 bg-rosso" />
           {kicker}
         </p>
       )}
-      <h2 className="text-4xl font-black uppercase italic leading-none tracking-tight md:text-6xl">
+      <h2 className="text-3xl font-black uppercase italic leading-none tracking-tight md:text-5xl">
         {title}
       </h2>
     </Reveal>
+  );
+}
+
+/* Компактный хедер утилитарных страниц: плотный, данные ближе к первому
+   экрану. Кикер-хайрлайн, средний заголовок, опциональный контрол справа
+   и подзаголовок. Главная и «История» сохраняют свой большой hero. */
+export function PageHead({ kicker, title, lead, right, children, className = "" }) {
+  return (
+    <section className={`relative mx-auto max-w-7xl px-5 pb-6 pt-28 md:pt-32 ${className}`}>
+      {kicker && (
+        <Reveal>
+          <p className="mb-2 flex items-center gap-3 font-digits text-[11px] tracking-[0.3em] text-rosso">
+            <span className="inline-block h-px w-8 bg-rosso" />
+            {kicker}
+          </p>
+        </Reveal>
+      )}
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <Reveal>
+          <h1 className="text-4xl font-black uppercase italic leading-[0.9] tracking-tight md:text-6xl">
+            {title}
+          </h1>
+        </Reveal>
+        {right && <Reveal delay={0.05}>{right}</Reveal>}
+      </div>
+      {lead && (
+        <Reveal delay={0.08}>
+          <p className="mt-3 max-w-2xl text-dim">{lead}</p>
+        </Reveal>
+      )}
+      {children}
+    </section>
+  );
+}
+
+/* Единый ряд вкладок */
+export function TabBar({ tabs, active, onSelect, className = "" }) {
+  return (
+    <div className={`flex flex-wrap gap-1.5 ${className}`}>
+      {tabs.map(({ id, label }) => (
+        <button
+          key={id}
+          onClick={() => onSelect(id)}
+          aria-pressed={active === id}
+          className={`rounded-lg px-4 py-2 text-xs font-black uppercase tracking-[0.15em] transition-colors ${
+            active === id
+              ? "bg-rosso text-white"
+              : "border border-line bg-panel/60 text-dim hover:border-line hover:text-white"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* Показатель «значение + подпись». accent — только для действительно
+   важных чисел (лидер, рекорд, «моё»); по умолчанию нейтральный белый. */
+export function Stat({ value, label, accent = false, className = "" }) {
+  return (
+    <div className={`border-l-2 border-line pl-4 ${className}`}>
+      <span
+        className={`block font-digits text-3xl font-bold md:text-4xl ${
+          accent ? "text-giallo" : "text-white"
+        }`}
+      >
+        {value}
+      </span>
+      <p className="mt-1 text-[9px] font-bold tracking-[0.3em] text-dim">{label}</p>
+    </div>
   );
 }
